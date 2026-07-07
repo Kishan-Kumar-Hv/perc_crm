@@ -19,7 +19,8 @@ import {
   Activity, 
   Calendar,
   Lock,
-  X
+  X,
+  Menu
 } from 'lucide-react';
 
 function App() {
@@ -63,6 +64,7 @@ function App() {
   const [loginRole, setLoginRole] = useState('admin');
   const [loginTeacherId, setLoginTeacherId] = useState('');
   const [loginStudentId, setLoginStudentId] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Auto-validate login selection state against active teacher database
   useEffect(() => {
@@ -183,10 +185,31 @@ function App() {
             <a href="#about-section" className="landing-nav-link" onClick={(e) => { e.preventDefault(); scrollToSection('about-section'); }}>About</a>
           </nav>
 
-          <button className="btn btn-accent-red" onClick={() => scrollToSection('portals-section')}>
+          <button className="btn btn-accent-red landing-desktop-portal-btn" onClick={() => scrollToSection('portals-section')}>
             Portal Access <Lock size={14} style={{ marginLeft: '6px' }} />
           </button>
+
+          <button 
+            className="landing-hamburger-btn"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle Navigation Menu"
+          >
+            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </header>
+
+        {/* Mobile Nav Menu Drawer */}
+        {mobileMenuOpen && (
+          <div className="landing-mobile-menu">
+            <a href="#hero-section" className="landing-mobile-link" onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); scrollToSection('hero-section'); }}>Home</a>
+            <a href="#portals-section" className="landing-mobile-link" onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); scrollToSection('portals-section'); }}>Portals Gateway</a>
+            <a href="#programs-section" className="landing-mobile-link" onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); scrollToSection('programs-section'); }}>Academic Programs</a>
+            <a href="#about-section" className="landing-mobile-link" onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); scrollToSection('about-section'); }}>About Us</a>
+            <button className="btn btn-accent-red" style={{ width: '100%', marginTop: '12px' }} onClick={() => { setMobileMenuOpen(false); scrollToSection('portals-section'); }}>
+              Portal Access <Lock size={14} style={{ marginLeft: '6px' }} />
+            </button>
+          </div>
+        )}
 
         {/* 2. Hero Section */}
         <section id="hero-section" className="landing-hero-section">

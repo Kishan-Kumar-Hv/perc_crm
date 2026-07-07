@@ -2111,6 +2111,11 @@ p {
   border-color: var(--color-primary);
 }
 
+/* Hamburger Navigation Trigger button (Hidden on Desktop) */
+.landing-hamburger-btn {
+  display: none;
+}
+
 /* Comprehensive Responsive Overrides for Mobile Devices */
 @media (max-width: 768px) {
   /* Landing Header Navigation */
@@ -2119,6 +2124,69 @@ p {
   }
   .landing-nav {
     display: none !important; /* Hides horizontal links on mobile view to prevent wrap overflow */
+  }
+  .landing-desktop-portal-btn {
+    display: none !important; /* Hide header button to clear up space */
+  }
+  .landing-hamburger-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition-smooth);
+  }
+  .landing-hamburger-btn:hover {
+    background: rgba(30, 34, 63, 0.05);
+  }
+
+  /* Slide down mobile menu */
+  .landing-mobile-menu {
+    position: fixed;
+    top: 70px; /* Header height */
+    left: 0;
+    width: 100vw;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 24px 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 10px 25px rgba(30, 34, 63, 0.08);
+    animation: slideDownMobileMenu 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    box-sizing: border-box;
+  }
+
+  @keyframes slideDownMobileMenu {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .landing-mobile-link {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-decoration: none;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(30, 34, 63, 0.04);
+    transition: var(--transition-smooth);
+  }
+  .landing-mobile-link:hover {
+    color: var(--color-accent-red);
+    padding-left: 6px;
   }
   
   /* Hero Section adjustments */
