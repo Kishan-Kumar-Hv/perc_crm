@@ -390,16 +390,10 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
               </div>
             </div>
 
-            {/* Quick Metrics */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px' }}>
-              <div className="crm-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                {renderAttendanceRing()}
-              </div>
-
-              <div className="crm-card">
-                <h3 className="crm-card-title"><Award size={18} color="var(--color-primary)" /> Grade Curve</h3>
-                {renderGradeChart()}
-              </div>
+            {/* Grade Curve Chart */}
+            <div className="crm-card">
+              <h3 className="crm-card-title"><Award size={18} color="var(--color-primary)" /> Grade Curve</h3>
+              {renderGradeChart()}
             </div>
           </>
         )}
@@ -463,61 +457,45 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
 
         {/* Tab: Attendance */}
         {activeTab === 'attendance' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px' }}>
-            <div className="crm-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              {renderAttendanceRing()}
-              <div className="profile-meta-grid" style={{ width: '100%', marginTop: '24px', textAlign: 'center' }}>
-                <div className="profile-meta-item">
-                  <span className="profile-meta-label">Total Logs</span>
-                  <span className="profile-meta-val">{totalDays} Sessions</span>
-                </div>
-                <div className="profile-meta-item">
-                  <span className="profile-meta-label">Present Sessions</span>
-                  <span className="profile-meta-val" style={{ color: 'var(--color-success)' }}>{presentDays}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="crm-card">
-              <h3 className="crm-card-title"><Clock size={18} color="var(--color-info)" /> Historical Attendance Logs</h3>
-              <div className="table-wrapper" style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                <table className="crm-table">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Class Session</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {childAttendanceLogs.length > 0 ? (
-                      childAttendanceLogs.map((log, idx) => (
-                        <tr key={idx}>
-                          <td>{log.date}</td>
-                          <td>{child.courseEnrolled}</td>
-                          <td>
-                            {log.status === 'Present' ? (
-                              <span className="badge badge-success" style={{ display: 'flex', alignItems: 'center', gap: '4px', width: 'fit-content' }}>
-                                <CheckCircle size={10} /> Present
-                              </span>
-                            ) : (
-                              <span className="badge badge-danger" style={{ display: 'flex', alignItems: 'center', gap: '4px', width: 'fit-content' }}>
-                                <XCircle size={10} /> Absent
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="3" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
-                          No daily attendance logs mapped for this student.
+          <div className="crm-card">
+            <h3 className="crm-card-title"><Clock size={18} color="var(--color-info)" /> Historical Attendance Logs</h3>
+            <div className="table-wrapper" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+              <table className="crm-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Class Session</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {childAttendanceLogs.length > 0 ? (
+                    childAttendanceLogs.map((log, idx) => (
+                      <tr key={idx}>
+                        <td>{log.date}</td>
+                        <td>{child.courseEnrolled}</td>
+                        <td>
+                          {log.status === 'Present' ? (
+                            <span className="badge badge-success" style={{ display: 'flex', alignItems: 'center', gap: '4px', width: 'fit-content' }}>
+                              <CheckCircle size={10} /> Present
+                            </span>
+                          ) : (
+                            <span className="badge badge-danger" style={{ display: 'flex', alignItems: 'center', gap: '4px', width: 'fit-content' }}>
+                              <XCircle size={10} /> Absent
+                            </span>
+                          )}
                         </td>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="3" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
+                        No daily attendance logs mapped for this student.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
