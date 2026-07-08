@@ -251,7 +251,7 @@ export default function AdminPortal({ onSignOut }) {
           </div>
 
           <button className="btn btn-secondary" onClick={onSignOut}>
-            <LogOut size={16} /> Sign Out
+            <LogOut size={16} /> <span className="hide-on-mobile">Sign Out</span>
           </button>
         </div>
       </header>
@@ -368,8 +368,7 @@ export default function AdminPortal({ onSignOut }) {
 
             </div>
 
-            {/* Graphs Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+            <div className="graphs-grid">
               <div className="crm-card">
                 <h3 className="crm-card-title">
                   <Users size={18} color="var(--color-primary)" />

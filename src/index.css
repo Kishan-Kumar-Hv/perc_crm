@@ -262,9 +262,11 @@ p {
   flex-grow: 1;
   padding: 32px;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 32px;
+  min-width: 0;
 }
 
 .panel-header {
@@ -2220,6 +2222,50 @@ p {
   /* Portal Login selection cards */
   .gateway-card {
     padding: 24px 16px !important;
+  }
+
+  /* Dedicated Portal Headers responsive overrides */
+  .portal-header {
+    padding: 12px 16px !important;
+  }
+  .portal-badge {
+    display: none !important; /* Hide badge on mobile to free up space */
+  }
+  .portal-header-right {
+    gap: 12px !important;
+  }
+  .hide-on-mobile {
+    display: none !important; /* Hide Sign Out text on mobile buttons */
+  }
+}
+
+/* Fluid graphs dashboard layout grid */
+.graphs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  width: 100%;
+}
+
+@media (max-width: 580px) {
+  /* Stack panel titles and buttons vertically to prevent overlap */
+  .panel-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    width: 100%;
+  }
+  .panel-header button {
+    width: 100%;
+  }
+  .panel-title {
+    font-size: 1.5rem !important;
+  }
+
+  /* Stack input grid fields in modals to 1-column */
+  .form-row {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
   }
 }
 

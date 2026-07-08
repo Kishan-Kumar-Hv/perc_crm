@@ -236,7 +236,7 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
           </div>
 
           <button className="btn btn-secondary" onClick={onSignOut} style={{ padding: '6px 12px', fontSize: '0.85rem' }}>
-            <LogOut size={14} /> Sign Out
+            <LogOut size={14} /> <span className="hide-on-mobile">Sign Out</span>
           </button>
         </div>
       </header>
