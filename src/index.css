@@ -2232,10 +2232,33 @@ p {
     display: none !important; /* Hide badge on mobile to free up space */
   }
   .portal-header-right {
-    gap: 12px !important;
+    gap: 10px !important;
+  }
+  .portal-header-right select.select-dropdown {
+    max-width: 120px !important;
+    padding: 4px 8px !important;
+    font-size: 0.8rem !important;
+  }
+  .portal-header-right span.form-label {
+    display: none !important; /* Hide labels like Student Profile / Instructor on mobile */
+  }
+  .portal-header-right .user-avatar-wrap {
+    display: none !important; /* Hide avatar wrapper to avoid header overflow */
+  }
+  .portal-header-left .perc-logo-horizontal > div:last-child {
+    display: none !important; /* Hide brand text elements of the horizontal logo in portal header */
+  }
+  .portal-header-left .perc-logo-horizontal {
+    width: 36px !important;
+    gap: 0 !important;
   }
   .hide-on-mobile {
     display: none !important; /* Hide Sign Out text on mobile buttons */
+  }
+
+  /* Force tables to retain width to enable clean swipe scroll on mobile */
+  .crm-table {
+    min-width: 800px !important;
   }
 }
 
