@@ -190,6 +190,9 @@ export default function TeacherPortal({ teacherId, onChangeTeacher, onSignOut })
       </header>
 
       <div className="crm-layout" style={{ flexGrow: 1, minHeight: 'unset' }}>
+        {isSidebarOpen && (
+          <div className="sidebar-backdrop" onClick={() => setIsSidebarOpen(false)} />
+        )}
       {/* Sidebar */}
       <aside className={`crm-sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">

@@ -257,6 +257,9 @@ export default function AdminPortal({ onSignOut }) {
       </header>
 
       <div className="crm-layout" style={{ flexGrow: 1, minHeight: 'unset' }}>
+        {isSidebarOpen && (
+          <div className="sidebar-backdrop" onClick={() => setIsSidebarOpen(false)} />
+        )}
       {/* Sidebar */}
       <aside className={`crm-sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <ul className="sidebar-menu">
@@ -602,7 +605,7 @@ export default function AdminPortal({ onSignOut }) {
                 </button>
               </div>
             ) : (
-              <div className="table-responsive">
+              <div className="table-wrapper">
                 <table className="crm-table">
                   <thead>
                     <tr>

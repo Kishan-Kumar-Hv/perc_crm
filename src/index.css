@@ -2007,7 +2007,7 @@ p {
 
   .crm-sidebar {
     position: fixed !important;
-    top: var(--header-height);
+    top: 0 !important;
     bottom: 0;
     left: -270px; /* sidebar width is 260px */
     z-index: 999;
@@ -2279,6 +2279,25 @@ p {
   .btn {
     padding: 10px 16px;
     font-size: 0.85rem;
+  }
+}
+
+/* Sidebar mobile backdrop overlay */
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(30, 34, 63, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 998; /* Under sidebar (z-index 999) */
+}
+
+@media (min-width: 1025px) {
+  .sidebar-backdrop {
+    display: none !important;
   }
 }
 

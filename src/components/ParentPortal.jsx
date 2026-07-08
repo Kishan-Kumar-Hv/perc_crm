@@ -242,6 +242,9 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
       </header>
 
       <div className="crm-layout" style={{ flexGrow: 1, minHeight: 'unset' }}>
+        {isSidebarOpen && (
+          <div className="sidebar-backdrop" onClick={() => setIsSidebarOpen(false)} />
+        )}
       {/* Sidebar */}
       <aside className={`crm-sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
@@ -477,7 +480,7 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
 
             <div className="crm-card">
               <h3 className="crm-card-title"><Clock size={18} color="var(--color-info)" /> Historical Attendance Logs</h3>
-              <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+              <div className="table-wrapper" style={{ maxHeight: '400px', overflowY: 'auto' }}>
                 <table className="crm-table">
                   <thead>
                     <tr>
