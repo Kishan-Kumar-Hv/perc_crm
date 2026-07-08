@@ -3,7 +3,7 @@ import { CRMContext } from '../context/CRMContext';
 import { 
   User, Calendar, BookOpen, Clipboard, MessageSquare, 
   Bell, AlertTriangle, CreditCard, Clock, Award, FileText, CheckCircle, XCircle,
-  LogOut, Menu, X
+  LogOut, Menu, X, ChevronDown, ChevronUp
 } from 'lucide-react';
 import PERCLogo from './PERCLogo';
 
@@ -14,6 +14,7 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
 
   const [activeTab, setActiveTab] = useState('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [expandedGradeId, setExpandedGradeId] = useState(null);
 
   const getInitials = (name) => {
     if (!name) return 'S';
@@ -403,7 +404,8 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
           <div className="learning-curve-grid">
             <div className="crm-card">
               <h3 className="crm-card-title"><Award size={18} color="var(--color-secondary)" /> Academic Exam Grades</h3>
-              <div className="table-wrapper">
+              {/* Scores Table - Desktop Only */}
+              <div className="desktop-only-table table-wrapper">
                 <table className="crm-table">
                   <thead>
                     <tr>
@@ -436,6 +438,56 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
                     )}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Scores Accordion - Mobile Only */}
+              <div className="mobile-only-list accordion-list" style={{ marginTop: '12px' }}>
+                {childGrades.length > 0 ? (
+                  childGrades.map((g, idx) => {
+                    const isExpanded = expandedGradeId === g.id;
+                    return (
+                      <div 
+                        key={g.id || idx} 
+                        className="accordion-item"
+                        onClick={() => setExpandedGradeId(isExpanded ? null : g.id)}
+                      >
+                        <div className="accordion-header">
+                          <div>
+                            <div className="accordion-title">{g.examName}</div>
+                            <div className="accordion-subtitle">{g.subject}</div>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontWeight: 600, color: 'var(--color-secondary)' }}>
+                              {Math.round((g.score / g.maxScore) * 100)}%
+                            </span>
+                            {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          </div>
+                        </div>
+                        
+                        {isExpanded && (
+                          <div className="accordion-details">
+                            <div className="accordion-detail-row">
+                              <span className="accordion-detail-label">Date Published</span>
+                              <span className="accordion-detail-value">{g.date}</span>
+                            </div>
+                            <div className="accordion-detail-row">
+                              <span className="accordion-detail-label">Secured Mark</span>
+                              <span className="accordion-detail-value">{g.score} / {g.maxScore}</span>
+                            </div>
+                            {g.feedback && (
+                              <div style={{ marginTop: '6px', borderTop: '1px solid var(--border-color)', paddingTop: '6px' }}>
+                                <span className="accordion-detail-label" style={{ display: 'block', marginBottom: '4px' }}>Instructor Remarks:</span>
+                                <p style={{ fontSize: '0.85rem', fontStyle: 'italic', margin: 0 }}>"{g.feedback}"</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="empty-state">No grades registered yet.</div>
+                )}
               </div>
             </div>
 

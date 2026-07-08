@@ -3,7 +3,7 @@ import { CRMContext } from '../context/CRMContext';
 import { 
   Users, UserCheck, LayoutDashboard, Bookmark, Bell, Plus, Trash2, 
   Search, TrendingUp, DollarSign, Calendar, Sliders, ChevronRight, ChevronLeft, ArrowRightLeft,
-  LogOut, Menu, X, BookOpen
+  LogOut, Menu, X, BookOpen, ChevronDown, ChevronUp
 } from 'lucide-react';
 import PERCLogo from './PERCLogo';
 
@@ -24,6 +24,11 @@ export default function AdminPortal({ onSignOut }) {
   const [showTeacherModal, setShowTeacherModal] = useState(false);
   const [showAnnModal, setShowAnnModal] = useState(false);
   const [showBatchModal, setShowBatchModal] = useState(false);
+
+  // Accordion lists state
+  const [expandedStudentId, setExpandedStudentId] = useState(null);
+  const [expandedTeacherId, setExpandedTeacherId] = useState(null);
+  const [expandedBatchId, setExpandedBatchId] = useState(null);
 
   // Search/Filters
   const [studentSearch, setStudentSearch] = useState('');
@@ -449,8 +454,8 @@ export default function AdminPortal({ onSignOut }) {
               </select>
             </div>
 
-            {/* Students Table */}
-            <div className="table-wrapper">
+            {/* Students Table - Desktop Only */}
+            <div className="desktop-only-table table-wrapper">
               <table className="crm-table">
                 <thead>
                   <tr>
@@ -510,61 +515,195 @@ export default function AdminPortal({ onSignOut }) {
                 </tbody>
               </table>
             </div>
+
+            {/* Students Accordion - Mobile Only */}
+            <div className="mobile-only-list accordion-list">
+              {filteredStudents.length > 0 ? (
+                filteredStudents.map(student => {
+                  const batch = batches.find(b => b.id === student.batchId);
+                  const isExpanded = expandedStudentId === student.id;
+                  return (
+                    <div 
+                      key={student.id} 
+                      className="accordion-item"
+                      onClick={() => setExpandedStudentId(isExpanded ? null : student.id)}
+                    >
+                      <div className="accordion-header">
+                        <div>
+                          <div className="accordion-title">{student.name}</div>
+                          <div className="accordion-subtitle">{student.id} | {student.courseEnrolled}</div>
+                        </div>
+                        <div>
+                          {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                        </div>
+                      </div>
+                      
+                      {isExpanded && (
+                        <div className="accordion-details">
+                          <div className="accordion-detail-row">
+                            <span className="accordion-detail-label">Class Level</span>
+                            <span className="accordion-detail-value">{student.className}</span>
+                          </div>
+                          <div className="accordion-detail-row">
+                            <span className="accordion-detail-label">Assigned Batch</span>
+                            <span className="accordion-detail-value">{batch ? batch.name : 'Unassigned'}</span>
+                          </div>
+                          <div className="accordion-detail-row">
+                            <span className="accordion-detail-label">Parent Name</span>
+                            <span className="accordion-detail-value">{student.parentName}</span>
+                          </div>
+                          <div className="accordion-detail-row">
+                            <span className="accordion-detail-label">Parent Contact</span>
+                            <span className="accordion-detail-value">{student.parentContact}</span>
+                          </div>
+                          <div className="accordion-detail-row">
+                            <span className="accordion-detail-label">Fee Status</span>
+                            <span className="accordion-detail-value">
+                              <span className={`badge ${
+                                student.feeStatus === 'Paid' ? 'badge-success' : 
+                                student.feeStatus === 'Partial' ? 'badge-warning' : 'badge-danger'
+                              }`}>
+                                {student.feeStatus}
+                              </span>
+                            </span>
+                          </div>
+                          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
+                            <button 
+                              className="btn btn-danger" 
+                              style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                              onClick={(e) => { e.stopPropagation(); deleteStudent(student.id); }}
+                            >
+                              <Trash2 size={12} /> Delete Student
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="empty-state">No students found matching filters.</div>
+              )}
+            </div>
           </>
         )}
 
         {activeTab === 'teachers' && (
-          <div className="table-wrapper">
-            <table className="crm-table">
-              <thead>
-                <tr>
-                  <th>Faculty ID</th>
-                  <th>Name</th>
-                  <th>Email & Contact</th>
-                  <th>Subjects</th>
-                  <th>Assigned Batches</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {teachers.map(t => (
-                  <tr key={t.id}>
-                    <td style={{ fontWeight: 600, color: 'var(--color-primary)' }}>{t.id}</td>
-                    <td>{t.name}</td>
-                    <td>
-                      <div>{t.email}</div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t.contact}</div>
-                    </td>
-                    <td>
-                      {t.subjects.map(s => (
-                        <span key={s} className="badge badge-info" style={{ marginRight: '4px', textTransform: 'none' }}>{s}</span>
-                      ))}
-                    </td>
-                    <td>
-                      {(() => {
-                        const tBatches = batches.filter(b => b.teacherId === t.id || (t.assignedBatches && t.assignedBatches.includes(b.id)));
-                        if (tBatches.length === 0) return <span className="text-muted" style={{ fontSize: '0.8rem' }}>None</span>;
-                        return tBatches.map(bt => (
-                          <span key={bt.id} className="badge badge-success" style={{ marginRight: '4px', textTransform: 'none' }}>
-                            {bt.name}
-                          </span>
-                        ));
-                      })()}
-                    </td>
-                    <td>
-                      <button 
-                        className="lead-action-btn"
-                        style={{ color: 'var(--color-danger)' }}
-                        onClick={() => deleteTeacher(t.id)}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </td>
+          <>
+            {/* Faculty Table - Desktop Only */}
+            <div className="desktop-only-table table-wrapper">
+              <table className="crm-table">
+                <thead>
+                  <tr>
+                    <th>Faculty ID</th>
+                    <th>Name</th>
+                    <th>Email & Contact</th>
+                    <th>Subjects</th>
+                    <th>Assigned Batches</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {teachers.map(t => (
+                    <tr key={t.id}>
+                      <td style={{ fontWeight: 600, color: 'var(--color-primary)' }}>{t.id}</td>
+                      <td>{t.name}</td>
+                      <td>
+                        <div>{t.email}</div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t.contact}</div>
+                      </td>
+                      <td>
+                        {t.subjects.map(s => (
+                          <span key={s} className="badge badge-info" style={{ marginRight: '4px', textTransform: 'none' }}>{s}</span>
+                        ))}
+                      </td>
+                      <td>
+                        {(() => {
+                          const tBatches = batches.filter(b => b.teacherId === t.id || (t.assignedBatches && t.assignedBatches.includes(b.id)));
+                          if (tBatches.length === 0) return <span className="text-muted" style={{ fontSize: '0.8rem' }}>None</span>;
+                          return tBatches.map(bt => (
+                            <span key={bt.id} className="badge badge-success" style={{ marginRight: '4px', textTransform: 'none' }}>
+                              {bt.name}
+                            </span>
+                          ));
+                        })()}
+                      </td>
+                      <td>
+                        <button 
+                          className="lead-action-btn"
+                          style={{ color: 'var(--color-danger)' }}
+                          onClick={() => deleteTeacher(t.id)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Faculty Accordion - Mobile Only */}
+            <div className="mobile-only-list accordion-list">
+              {teachers.length > 0 ? (
+                teachers.map(teacher => {
+                  const isExpanded = expandedTeacherId === teacher.id;
+                  const teacherBatches = batches.filter(b => b.teacherId === teacher.id || (teacher.assignedBatches && teacher.assignedBatches.includes(b.id)));
+                  return (
+                    <div 
+                      key={teacher.id} 
+                      className="accordion-item"
+                      onClick={() => setExpandedTeacherId(isExpanded ? null : teacher.id)}
+                    >
+                      <div className="accordion-header">
+                        <div>
+                          <div className="accordion-title">{teacher.name}</div>
+                          <div className="accordion-subtitle">{teacher.id}</div>
+                        </div>
+                        <div>
+                          {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                        </div>
+                      </div>
+                      
+                      {isExpanded && (
+                        <div className="accordion-details">
+                          <div className="accordion-detail-row">
+                            <span className="accordion-detail-label">Email</span>
+                            <span className="accordion-detail-value">{teacher.email}</span>
+                          </div>
+                          <div className="accordion-detail-row">
+                            <span className="accordion-detail-label">Contact No</span>
+                            <span className="accordion-detail-value">{teacher.contact}</span>
+                          </div>
+                          <div className="accordion-detail-row">
+                            <span className="accordion-detail-label">Expertise</span>
+                            <span className="accordion-detail-value">{teacher.subjects.join(', ')}</span>
+                          </div>
+                          <div className="accordion-detail-row">
+                            <span className="accordion-detail-label">Assigned Batches</span>
+                            <span className="accordion-detail-value">
+                              {teacherBatches.map(b => b.name).join(', ') || 'None'}
+                            </span>
+                          </div>
+                          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
+                            <button 
+                              className="btn btn-danger" 
+                              style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                              onClick={(e) => { e.stopPropagation(); deleteTeacher(teacher.id); }}
+                            >
+                              <Trash2 size={12} /> Delete Faculty
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="empty-state">No faculty members onboarded yet.</div>
+              )}
+            </div>
+          </>
         )}
 
 
@@ -605,49 +744,99 @@ export default function AdminPortal({ onSignOut }) {
                 </button>
               </div>
             ) : (
-              <div className="table-wrapper">
-                <table className="crm-table">
-                  <thead>
-                    <tr>
-                      <th>Batch ID</th>
-                      <th>Batch Name</th>
-                      <th>Course Name</th>
-                      <th>Class Timing</th>
-                      <th>Assigned Faculty</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {batches.map(b => {
-                      const teacher = teachers.find(t => t.id === b.teacherId);
-                      return (
-                        <tr key={b.id}>
-                          <td><strong>{b.id}</strong></td>
-                          <td>{b.name}</td>
-                          <td>{b.courseName}</td>
-                          <td>{b.timing}</td>
-                          <td>
-                            {teacher ? (
-                              <span className="badge badge-success">{teacher.name}</span>
-                            ) : (
-                              <span className="text-muted">Unassigned</span>
-                            )}
-                          </td>
-                          <td>
-                            <button 
-                              className="btn btn-secondary" 
-                              onClick={() => deleteBatch(b.id)}
-                              style={{ padding: '6px 12px', fontSize: '0.75rem', background: 'rgba(220,38,38,0.1)', color: 'rgb(220,38,38)', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              <>
+                {/* Batches Table - Desktop Only */}
+                <div className="desktop-only-table table-wrapper">
+                  <table className="crm-table">
+                    <thead>
+                      <tr>
+                        <th>Batch ID</th>
+                        <th>Batch Name</th>
+                        <th>Course Name</th>
+                        <th>Class Timing</th>
+                        <th>Assigned Faculty</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {batches.map(b => {
+                        const teacher = teachers.find(t => t.id === b.teacherId);
+                        return (
+                          <tr key={b.id}>
+                            <td><strong>{b.id}</strong></td>
+                            <td>{b.name}</td>
+                            <td>{b.courseName}</td>
+                            <td>{b.timing}</td>
+                            <td>
+                              {teacher ? (
+                                <span className="badge badge-success">{teacher.name}</span>
+                              ) : (
+                                <span className="text-muted">Unassigned</span>
+                              )}
+                            </td>
+                            <td>
+                              <button 
+                                className="btn btn-secondary" 
+                                onClick={() => deleteBatch(b.id)}
+                                style={{ padding: '6px 12px', fontSize: '0.75rem', background: 'rgba(220,38,38,0.1)', color: 'rgb(220,38,38)', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Batches Accordion - Mobile Only */}
+                <div className="mobile-only-list accordion-list">
+                  {batches.map(batch => {
+                    const teacher = teachers.find(t => t.id === batch.teacherId);
+                    const isExpanded = expandedBatchId === batch.id;
+                    return (
+                      <div 
+                        key={batch.id} 
+                        className="accordion-item"
+                        onClick={() => setExpandedBatchId(isExpanded ? null : batch.id)}
+                      >
+                        <div className="accordion-header">
+                          <div>
+                            <div className="accordion-title">{batch.name}</div>
+                            <div className="accordion-subtitle">{batch.id} | {batch.courseName}</div>
+                          </div>
+                          <div>
+                            {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                          </div>
+                        </div>
+                        
+                        {isExpanded && (
+                          <div className="accordion-details">
+                            <div className="accordion-detail-row">
+                              <span className="accordion-detail-label">Timing</span>
+                              <span className="accordion-detail-value">{batch.timing}</span>
+                            </div>
+                            <div className="accordion-detail-row">
+                              <span className="accordion-detail-label">Instructor</span>
+                              <span className="accordion-detail-value">{teacher ? teacher.name : 'Unassigned'}</span>
+                            </div>
+                            <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
+                              <button 
+                                className="btn btn-danger" 
+                                style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                                onClick={(e) => { e.stopPropagation(); deleteBatch(batch.id); }}
+                              >
+                                <Trash2 size={12} /> Delete Batch
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
             )}
           </div>
         )}
