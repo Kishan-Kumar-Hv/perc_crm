@@ -18,6 +18,27 @@ export default function AdminPortal({ onSignOut }) {
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [hoveredDemoPoint, setHoveredDemoPoint] = useState(null);
+  const [hoveredAttPoint, setHoveredAttPoint] = useState(null);
+
+  // Helper for generating smooth cubic Bezier paths
+  const getBezierPath = (points) => {
+    if (points.length === 0) return '';
+    if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
+    if (points.length === 2) return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
+    
+    let d = `M ${points[0].x} ${points[0].y}`;
+    for (let i = 0; i < points.length - 1; i++) {
+      const curr = points[i];
+      const next = points[i + 1];
+      const cpX1 = curr.x + (next.x - curr.x) / 3;
+      const cpY1 = curr.y;
+      const cpX2 = curr.x + 2 * (next.x - curr.x) / 3;
+      const cpY2 = next.y;
+      d += ` C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${next.x} ${next.y}`;
+    }
+    return d;
+  };
   
   // Modals state
   const [showStudentModal, setShowStudentModal] = useState(false);
@@ -73,13 +94,39 @@ export default function AdminPortal({ onSignOut }) {
     const data = Object.entries(counts);
 
     return (
-      <div className="chart-container">
+      <div className="chart-container" style={{ position: 'relative' }}>
+        {/* Demographic Interactive Tooltip */}
+        {hoveredDemoPoint && (
+          <div 
+            className="chart-tooltip" 
+            style={{ 
+              left: `${hoveredDemoPoint.x}px`, 
+              top: `${hoveredDemoPoint.y - 45}px`,
+              transform: 'translateX(-50%)',
+              whiteSpace: 'nowrap',
+              opacity: 1
+            }}
+          >
+            <div style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-primary)' }}>{hoveredDemoPoint.label}</div>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: '2px' }}>
+              Enrolled: <strong style={{ color: 'var(--color-primary)' }}>{hoveredDemoPoint.val} Students</strong>
+            </div>
+          </div>
+        )}
+
         <svg className="chart-svg" viewBox="0 0 400 200">
+          <defs>
+            <linearGradient id="bar-gradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--color-primary)" />
+              <stop offset="100%" stopColor="var(--color-secondary)" />
+            </linearGradient>
+          </defs>
+
           {/* Grid lines */}
-          <line x1="40" y1="30" x2="380" y2="30" className="chart-grid-line" />
-          <line x1="40" y1="80" x2="380" y2="80" className="chart-grid-line" />
-          <line x1="40" y1="130" x2="380" y2="130" className="chart-grid-line" />
-          <line x1="40" y1="170" x2="380" y2="170" stroke="var(--border-color)" strokeWidth="2" />
+          <line x1="40" y1="30" x2="380" y2="30" className="chart-grid-line" strokeWidth="0.5" />
+          <line x1="40" y1="80" x2="380" y2="80" className="chart-grid-line" strokeWidth="0.5" />
+          <line x1="40" y1="130" x2="380" y2="130" className="chart-grid-line" strokeWidth="0.5" />
+          <line x1="40" y1="170" x2="380" y2="170" stroke="var(--border-color)" strokeWidth="1" />
 
           {data.map(([label, val], idx) => {
             const barWidth = 45;
@@ -87,21 +134,50 @@ export default function AdminPortal({ onSignOut }) {
             const x = 70 + idx * barSpacing;
             const height = (val / maxVal) * 120;
             const y = 170 - height;
+            const isHovered = hoveredDemoPoint && hoveredDemoPoint.label === label;
             
             return (
-              <g key={label}>
+              <g 
+                key={label}
+                onMouseEnter={() => setHoveredDemoPoint({ label, val, x: x + barWidth/2, y })}
+                onMouseLeave={() => setHoveredDemoPoint(null)}
+                style={{ cursor: 'pointer' }}
+              >
+                {/* Round top corners bar */}
                 <rect 
                   x={x} 
                   y={y} 
                   width={barWidth} 
                   height={height} 
                   rx="6" 
-                  className="chart-bar"
+                  ry="6"
+                  fill="url(#bar-gradient)"
+                  opacity={isHovered ? 1 : 0.85}
+                  style={{ transition: 'all 0.15s ease' }}
                 />
-                <text x={x + barWidth/2} y={y - 8} textAnchor="middle" fill="#fff" fontSize="10" fontWeight="600">
+                {/* Overlay covering bottom corners to keep base flat */}
+                {height > 6 && (
+                  <rect 
+                    x={x} 
+                    y={y + height - 6} 
+                    width={barWidth} 
+                    height={6} 
+                    fill="url(#bar-gradient)"
+                    opacity={isHovered ? 1 : 0.85}
+                    pointerEvents="none"
+                  />
+                )}
+                <text 
+                  x={x + barWidth/2} 
+                  y={y - 8} 
+                  textAnchor="middle" 
+                  fill="var(--text-primary)" 
+                  fontSize="10" 
+                  fontWeight="700"
+                >
                   {val}
                 </text>
-                <text x={x + barWidth/2} y="185" textAnchor="middle" className="chart-axis-text">
+                <text x={x + barWidth/2} y="185" textAnchor="middle" className="chart-axis-text" fontWeight="600">
                   {label}
                 </text>
               </g>
@@ -123,45 +199,120 @@ export default function AdminPortal({ onSignOut }) {
       { date: '07-03', rate: 75 }
     ];
 
+    const width = 400;
+    const height = 200;
+    const paddingLeft = 50;
+    const paddingRight = 30;
+    const paddingTop = 40;
+    const paddingBottom = 40;
+
+    const points = data.map((item, idx) => {
+      const x = paddingLeft + (idx * (width - paddingLeft - paddingRight) / Math.max(data.length - 1, 1));
+      const y = height - paddingBottom - (item.rate / 100) * (height - paddingTop - paddingBottom);
+      return { x, y, label: item.date, value: `${item.rate}%` };
+    });
+
+    const dPath = getBezierPath(points);
+    const dArea = points.length > 0 ? `${dPath} L ${points[points.length - 1].x} ${height - paddingBottom} L ${points[0].x} ${height - paddingBottom} Z` : '';
+
     return (
-      <div className="chart-container">
+      <div className="chart-container" style={{ position: 'relative' }}>
+        {/* Attendance Interactive Tooltip */}
+        {hoveredAttPoint && (
+          <div 
+            className="chart-tooltip" 
+            style={{ 
+              left: `${hoveredAttPoint.x}px`, 
+              top: `${hoveredAttPoint.y - 45}px`,
+              transform: 'translateX(-50%)',
+              whiteSpace: 'nowrap',
+              opacity: 1
+            }}
+          >
+            <div style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-primary)' }}>Date: {hoveredAttPoint.label}</div>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: '2px' }}>
+              Attendance: <strong style={{ color: 'var(--color-primary)' }}>{hoveredAttPoint.value}</strong>
+            </div>
+          </div>
+        )}
+
         <svg className="chart-svg" viewBox="0 0 400 200">
-          <line x1="40" y1="30" x2="380" y2="30" className="chart-grid-line" />
-          <line x1="40" y1="90" x2="380" y2="90" className="chart-grid-line" />
-          <line x1="40" y1="150" x2="380" y2="150" className="chart-grid-line" />
-          <line x1="40" y1="170" x2="380" y2="170" stroke="var(--border-color)" />
-
-          {/* Area under line */}
-          <path 
-            d="M 60 170 L 60 74 L 200 66 L 340 82 L 340 170 Z" 
-            className="chart-line-bg"
-          />
-
-          {/* Line path */}
-          <path 
-            d="M 60 74 L 200 66 L 340 82" 
-            className="chart-line"
-          />
-
-          {/* Points */}
-          <circle cx="60" cy="74" r="5" fill="var(--color-secondary)" />
-          <text x="60" y="58" textAnchor="middle" fill="#fff" fontSize="10">80%</text>
-          <text x="60" y="185" textAnchor="middle" className="chart-axis-text">Jul 01</text>
-
-          <circle cx="200" cy="66" r="5" fill="var(--color-secondary)" />
-          <text x="200" y="50" textAnchor="middle" fill="#fff" fontSize="10">85%</text>
-          <text x="200" y="185" textAnchor="middle" className="chart-axis-text">Jul 02</text>
-
-          <circle cx="340" cy="82" r="5" fill="var(--color-secondary)" />
-          <text x="340" y="66" textAnchor="middle" fill="#fff" fontSize="10">75%</text>
-          <text x="340" y="185" textAnchor="middle" className="chart-axis-text">Jul 03</text>
-
           <defs>
-            <linearGradient id="chart-gradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="var(--color-secondary)" stopOpacity="0.4" />
+            <linearGradient id="att-gradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--color-secondary)" stopOpacity="0.3" />
               <stop offset="100%" stopColor="var(--color-secondary)" stopOpacity="0.0" />
             </linearGradient>
           </defs>
+
+          {/* Grid lines */}
+          <line x1="40" y1="30" x2="380" y2="30" className="chart-grid-line" strokeWidth="0.5" />
+          <line x1="40" y1="90" x2="380" y2="90" className="chart-grid-line" strokeWidth="0.5" />
+          <line x1="40" y1="150" x2="380" y2="150" className="chart-grid-line" strokeWidth="0.5" />
+          <line x1="40" y1="170" x2="380" y2="170" stroke="var(--border-color)" strokeWidth="1" />
+
+          {/* Area under curve */}
+          {points.length > 0 && (
+            <path 
+              d={dArea} 
+              fill="url(#att-gradient)"
+              opacity="0.6"
+            />
+          )}
+
+          {/* Line path */}
+          <path 
+            d={dPath} 
+            className="chart-line"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+
+          {/* Interactive points */}
+          {points.map((p, idx) => {
+            const isHovered = hoveredAttPoint && hoveredAttPoint.label === p.label;
+            return (
+              <g 
+                key={idx}
+                onMouseEnter={() => setHoveredAttPoint(p)}
+                onMouseLeave={() => setHoveredAttPoint(null)}
+                style={{ cursor: 'pointer' }}
+              >
+                {/* Glow Ring */}
+                <circle 
+                  cx={p.x} 
+                  cy={p.y} 
+                  r={isHovered ? 8 : 4.5} 
+                  fill="var(--color-secondary)" 
+                  opacity={isHovered ? 0.35 : 0} 
+                  style={{ transition: 'r 0.15s ease, opacity 0.15s ease' }}
+                />
+                {/* Central point */}
+                <circle 
+                  cx={p.x} 
+                  cy={p.y} 
+                  r="4.5" 
+                  fill={isHovered ? 'var(--color-primary)' : 'var(--color-secondary)'} 
+                  stroke="#FFFFFF" 
+                  strokeWidth="1.5"
+                  style={{ transition: 'fill 0.15s ease' }}
+                />
+                <text 
+                  x={p.x} 
+                  y={p.y - 10} 
+                  textAnchor="middle" 
+                  fill="var(--text-primary)" 
+                  fontSize="8" 
+                  fontWeight="700"
+                >
+                  {p.value}
+                </text>
+                <text x={p.x} y="185" textAnchor="middle" className="chart-axis-text" fontWeight="600">
+                  {p.label}
+                </text>
+              </g>
+            );
+          })}
         </svg>
       </div>
     );

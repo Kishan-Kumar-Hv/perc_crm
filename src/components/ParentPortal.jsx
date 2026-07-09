@@ -15,6 +15,26 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
   const [activeTab, setActiveTab] = useState('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [expandedGradeId, setExpandedGradeId] = useState(null);
+  const [hoveredGradePoint, setHoveredGradePoint] = useState(null);
+
+  // Helper for generating smooth cubic Bezier paths
+  const getBezierPath = (points) => {
+    if (points.length === 0) return '';
+    if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
+    if (points.length === 2) return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
+    
+    let d = `M ${points[0].x} ${points[0].y}`;
+    for (let i = 0; i < points.length - 1; i++) {
+      const curr = points[i];
+      const next = points[i + 1];
+      const cpX1 = curr.x + (next.x - curr.x) / 3;
+      const cpY1 = curr.y;
+      const cpX2 = curr.x + 2 * (next.x - curr.x) / 3;
+      const cpY2 = next.y;
+      d += ` C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${next.x} ${next.y}`;
+    }
+    return d;
+  };
 
   const getInitials = (name) => {
     if (!name) return 'S';
@@ -115,7 +135,7 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
           x="75" 
           y="80" 
           textAnchor="middle" 
-          fill="#fff" 
+          fill="var(--color-primary)" 
           fontSize="22" 
           fontWeight="700"
           fontFamily="var(--font-family)"
@@ -124,12 +144,12 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
         </text>
         <text 
           x="75" 
-          y="100" 
+          y="98" 
           textAnchor="middle" 
-          fill="var(--text-secondary)" 
-          fontSize="10"
-          fontWeight="500"
-          letterSpacing="0.05em"
+          fill="var(--text-muted)" 
+          fontSize="8"
+          fontWeight="700"
+          letterSpacing="0.08em"
           fontFamily="var(--font-family)"
         >
           ATTENDANCE
@@ -162,40 +182,114 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
       const x = padding + (idx * (width - 2 * padding) / Math.max(sorted.length - 1, 1));
       const pct = percentages[idx];
       const y = height - padding - (pct / 100) * (height - 2 * padding);
-      return { x, y, label: g.examName, value: `${Math.round(pct)}%` };
+      return { x, y, label: g.examName, value: `${Math.round(pct)}%`, score: g.score, maxScore: g.maxScore, date: g.date, feedback: g.feedback };
     });
 
-    const dPath = points.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+    const dPath = getBezierPath(points);
+    const dArea = points.length > 0 ? `${dPath} L ${points[points.length - 1].x} ${height - padding} L ${points[0].x} ${height - padding} Z` : '';
 
     return (
-      <div className="chart-container" style={{ height: '170px' }}>
+      <div className="chart-container" style={{ height: '170px', position: 'relative' }}>
+        {/* Tooltip Overlay */}
+        {hoveredGradePoint && (
+          <div 
+            className="chart-tooltip" 
+            style={{ 
+              left: `${hoveredGradePoint.x}px`, 
+              top: `${hoveredGradePoint.y - 70}px`,
+              transform: 'translateX(-50%)',
+              whiteSpace: 'nowrap',
+              opacity: 1
+            }}
+          >
+            <div style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-primary)' }}>{hoveredGradePoint.label}</div>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: '2px' }}>
+              Score: <strong style={{ color: 'var(--color-primary)' }}>{hoveredGradePoint.score}/{hoveredGradePoint.maxScore} ({hoveredGradePoint.value})</strong>
+            </div>
+            {hoveredGradePoint.feedback && (
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontStyle: 'italic', marginTop: '4px', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                "{hoveredGradePoint.feedback}"
+              </div>
+            )}
+          </div>
+        )}
+
         <svg className="chart-svg" viewBox={`0 0 ${width} ${height}`}>
+          <defs>
+            <linearGradient id="chart-gradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--color-secondary)" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="var(--color-secondary)" stopOpacity="0.0" />
+            </linearGradient>
+          </defs>
+
           {/* Horizontal Grid lines */}
-          <line x1={padding} y1={padding} x2={width - padding} y2={padding} className="chart-grid-line" />
-          <line x1={padding} y1={height / 2} x2={width - padding} y2={height / 2} className="chart-grid-line" />
-          <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="var(--border-color)" />
+          <line x1={padding} y1={padding} x2={width - padding} y2={padding} className="chart-grid-line" strokeWidth="0.5" />
+          <line x1={padding} y1={height / 2} x2={width - padding} y2={height / 2} className="chart-grid-line" strokeWidth="0.5" />
+          <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="var(--border-color)" strokeWidth="1" />
 
           {/* Area shade */}
           {points.length > 0 && (
             <path 
-              d={`${dPath} L ${points[points.length - 1].x} ${height - padding} L ${points[0].x} ${height - padding} Z`} 
+              d={dArea} 
               className="chart-line-bg"
             />
           )}
 
-          {/* Line */}
+          {/* Smooth line */}
           <path d={dPath} className="chart-line" strokeWidth="2.5" />
 
           {/* Point nodes */}
-          {points.map((p, idx) => (
-            <g key={idx}>
-              <circle cx={p.x} cy={p.y} r="4.5" fill="var(--color-secondary)" style={{ cursor: 'pointer' }} />
-              <text x={p.x} y={p.y - 8} textAnchor="middle" fill="#fff" fontSize="8" fontWeight="600">{p.value}</text>
-              <text x={p.x} y={height - padding + 12} textAnchor="middle" fill="var(--text-muted)" fontSize="7" fontWeight="500">
-                {p.label.split(':')[0]}
-              </text>
-            </g>
-          ))}
+          {points.map((p, idx) => {
+            const isHovered = hoveredGradePoint && hoveredGradePoint.idx === idx;
+            return (
+              <g 
+                key={idx}
+                onMouseEnter={() => setHoveredGradePoint({ ...p, idx })}
+                onMouseLeave={() => setHoveredGradePoint(null)}
+                style={{ cursor: 'pointer' }}
+              >
+                {/* Glow ring */}
+                <circle 
+                  cx={p.x} 
+                  cy={p.y} 
+                  r={isHovered ? 8 : 4.5} 
+                  fill="var(--color-secondary)" 
+                  opacity={isHovered ? 0.35 : 0}
+                  style={{ transition: 'r 0.15s ease, opacity 0.15s ease' }}
+                />
+                {/* Center dot */}
+                <circle 
+                  cx={p.x} 
+                  cy={p.y} 
+                  r="4.5" 
+                  fill={isHovered ? 'var(--color-primary)' : 'var(--color-secondary)'} 
+                  stroke="#FFFFFF"
+                  strokeWidth="1.5"
+                  style={{ transition: 'fill 0.15s ease' }}
+                />
+                <text 
+                  x={p.x} 
+                  y={p.y - 10} 
+                  textAnchor="middle" 
+                  fill="var(--text-primary)" 
+                  fontSize="7.5" 
+                  fontWeight="700"
+                >
+                  {p.value}
+                </text>
+                <text 
+                  x={p.x} 
+                  y={height - padding + 12} 
+                  textAnchor="middle" 
+                  fill="var(--text-muted)" 
+                  fontSize="7" 
+                  fontWeight="500"
+                >
+                  {p.label.split(':')[0]}
+                </text>
+              </g>
+            );
+          })}
         </svg>
       </div>
     );
@@ -328,65 +422,112 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
                 gap: '12px'
               }}>
                 <AlertTriangle color="var(--color-danger)" />
-                <div>
-                  <span style={{ fontWeight: 600, color: '#fff' }}>Pending Dues Alert: </span>
+                <div style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                  <span style={{ fontWeight: 600, color: 'var(--color-danger)' }}>Pending Dues Alert: </span>
                   Your child's fee status is marked as <span className="badge badge-danger">{child.feeStatus}</span>. Please clear outstanding installments by logging into the portal payment gateway.
                 </div>
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
               {/* Profile details */}
               <div className="crm-card">
-                <h3 className="crm-card-title"><User size={18} color="var(--color-primary)" /> Profile Particulars</h3>
-                <div className="profile-meta-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
-                  <div className="profile-meta-item">
-                    <span className="profile-meta-label">Reg ID</span>
-                    <span className="profile-meta-val" style={{ color: 'var(--color-secondary)' }}>{child.id}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
+                  <div className="avatar-circle" style={{
+                    width: '44px',
+                    height: '44px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: '1.1rem',
+                    boxShadow: '0 4px 10px rgba(30, 34, 63, 0.12)'
+                  }}>
+                    {getInitials(child.name)}
                   </div>
+                  <div>
+                    <h3 style={{ fontSize: '1.1rem', margin: 0, fontWeight: 700, color: 'var(--color-primary)' }}>{child.name}</h3>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>ID: {child.id}</span>
+                  </div>
+                </div>
+                
+                <div className="profile-meta-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div className="profile-meta-item">
                     <span className="profile-meta-label">Admission Date</span>
-                    <span className="profile-meta-val">{child.admissionDate}</span>
+                    <span className="profile-meta-val" style={{ fontSize: '0.85rem' }}>{child.admissionDate}</span>
+                  </div>
+                  <div className="profile-meta-item">
+                    <span className="profile-meta-label">Class Year</span>
+                    <span className="profile-meta-val" style={{ fontSize: '0.85rem' }}>{child.className}</span>
                   </div>
                   <div className="profile-meta-item">
                     <span className="profile-meta-label">Parent / Guardian</span>
-                    <span className="profile-meta-val">{child.parentName}</span>
+                    <span className="profile-meta-val" style={{ fontSize: '0.85rem' }}>{child.parentName}</span>
                   </div>
                   <div className="profile-meta-item">
                     <span className="profile-meta-label">Contact No</span>
-                    <span className="profile-meta-val">{child.parentContact}</span>
+                    <span className="profile-meta-val" style={{ fontSize: '0.85rem' }}>{child.parentContact}</span>
                   </div>
-                  <div className="profile-meta-item">
-                    <span className="profile-meta-label">Email Address</span>
-                    <span className="profile-meta-val" style={{ fontSize: '0.85rem' }}>{child.parentEmail}</span>
-                  </div>
-                  <div className="profile-meta-item">
-                    <span className="profile-meta-label">Fee Status</span>
-                    <span className={`badge ${child.feeStatus === 'Paid' ? 'badge-success' : child.feeStatus === 'Partial' ? 'badge-warning' : 'badge-danger'}`} style={{ alignSelf: 'flex-start' }}>
-                      {child.feeStatus}
-                    </span>
+                  <div className="profile-meta-item" style={{ gridColumn: 'span 2' }}>
+                    <span className="profile-meta-label">Registered Email</span>
+                    <span className="profile-meta-val" style={{ fontSize: '0.8rem', color: 'var(--color-secondary)' }}>{child.parentEmail}</span>
                   </div>
                 </div>
               </div>
 
               {/* Course details */}
-              <div className="crm-card">
-                <h3 className="crm-card-title"><BookOpen size={18} color="var(--color-secondary)" /> Academic Course Mapping</h3>
-                <div className="profile-meta-grid" style={{ gridTemplateColumns: '1fr' }}>
-                  <div className="profile-meta-item">
-                    <span className="profile-meta-label">Enrolled Course</span>
-                    <span className="profile-meta-val">{child.courseEnrolled}</span>
-                  </div>
-                  <div className="profile-meta-item" style={{ marginTop: '8px' }}>
-                    <span className="profile-meta-label">Assigned Batch</span>
-                    <span className="profile-meta-val">{batch ? `${batch.name} (${batch.timing})` : 'Unassigned'}</span>
-                  </div>
-                  {teacher && (
-                    <div className="profile-meta-item" style={{ marginTop: '8px' }}>
-                      <span className="profile-meta-label">Class Instructor</span>
-                      <span className="profile-meta-val">{teacher.name} ({teacher.email})</span>
+              <div className="crm-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <h3 className="crm-card-title" style={{ margin: 0, marginBottom: '16px' }}><BookOpen size={18} color="var(--color-secondary)" /> Academic Program</h3>
+                  <div className="profile-meta-grid" style={{ gridTemplateColumns: '1fr', gap: '12px' }}>
+                    <div className="profile-meta-item">
+                      <span className="profile-meta-label">Enrolled Course</span>
+                      <span className="profile-meta-val" style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-primary)' }}>{child.courseEnrolled}</span>
                     </div>
-                  )}
+                    <div className="profile-meta-item">
+                      <span className="profile-meta-label">Assigned Batch</span>
+                      <span className="profile-meta-val" style={{ fontSize: '0.85rem' }}>{batch ? `${batch.name} (${batch.timing})` : 'Unassigned'}</span>
+                    </div>
+                    {teacher && (
+                      <div className="profile-meta-item">
+                        <span className="profile-meta-label">Class Instructor</span>
+                        <span className="profile-meta-val" style={{ fontSize: '0.85rem' }}>{teacher.name}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div style={{ marginTop: '16px', borderTop: '1px solid var(--border-color)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span className="profile-meta-label" style={{ margin: 0 }}>Fee Invoices:</span>
+                  <span className={`badge ${child.feeStatus === 'Paid' ? 'badge-success' : child.feeStatus === 'Partial' ? 'badge-warning' : 'badge-danger'}`}>
+                    {child.feeStatus}
+                  </span>
+                </div>
+              </div>
+
+              {/* Attendance Circle Indicator */}
+              <div className="crm-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                  {renderAttendanceRing()}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-primary)', margin: 0 }}>Attendance Record</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', margin: '4px 0' }}>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      Total Sessions: <strong style={{ color: 'var(--color-primary)' }}>{totalDays}</strong>
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      Present: <strong style={{ color: 'var(--color-success)' }}>{presentDays}</strong>
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      Absent: <strong style={{ color: 'var(--color-danger)' }}>{totalDays - presentDays}</strong>
+                    </div>
+                  </div>
+                  <span className={`badge ${attendanceRate >= 80 ? 'badge-success' : 'badge-warning'}`} style={{ fontSize: '0.65rem', padding: '2px 8px', width: 'fit-content' }}>
+                    {attendanceRate >= 80 ? 'Good Standing' : 'Needs Action'}
+                  </span>
                 </div>
               </div>
             </div>

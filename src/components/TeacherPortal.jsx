@@ -325,24 +325,98 @@ export default function TeacherPortal({ teacherId, onChangeTeacher, onSignOut })
                   {students.filter(s => s.batchId === selectedAttendanceBatch).map(student => {
                     const status = activeAttendanceState[student.id] || 'Present';
                     return (
-                      <div key={student.id} className={`attendance-card ${status.toLowerCase()}`}>
-                        <div className="attendance-name">{student.name}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{student.id}</div>
+                      <div key={student.id} className={`attendance-card ${status.toLowerCase()}`} style={{
+                        padding: '20px 16px',
+                        borderRadius: 'var(--border-radius-md)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '12px',
+                        background: '#FFFFFF',
+                        border: `1.5px solid ${status === 'Present' ? 'rgba(16, 185, 129, 0.4)' : status === 'Absent' ? 'rgba(239, 68, 68, 0.4)' : 'var(--border-color)'}`,
+                        boxShadow: status === 'Present' ? '0 8px 20px rgba(16, 185, 129, 0.08)' : status === 'Absent' ? '0 8px 20px rgba(239, 68, 68, 0.08)' : 'var(--shadow-premium)',
+                        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)'
+                      }}>
+                        <div className="student-avatar" style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          background: status === 'Present' ? 'var(--color-success-bg)' : status === 'Absent' ? 'var(--color-danger-bg)' : 'rgba(30, 34, 63, 0.04)',
+                          color: status === 'Present' ? 'var(--color-success)' : status === 'Absent' ? 'var(--color-danger)' : 'var(--color-secondary)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 700,
+                          fontSize: '0.9rem',
+                          border: `1.5px solid ${status === 'Present' ? 'var(--color-success)' : status === 'Absent' ? 'var(--color-danger)' : 'transparent'}`,
+                          transition: 'all 0.25s ease'
+                        }}>
+                          {getInitials(student.name)}
+                        </div>
+
+                        <div style={{ textAlign: 'center' }}>
+                          <div className="attendance-name" style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-primary)' }}>{student.name}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>{student.id}</div>
+                        </div>
                         
-                        <div className="attendance-buttons">
+                        <div className="attendance-buttons" style={{ display: 'flex', gap: '8px', width: '100%', marginTop: '4px' }}>
                           <button 
                             type="button"
                             className={`att-btn ${status === 'Present' ? 'present-active' : ''}`}
                             onClick={() => handleStatusChange(student.id, 'Present')}
+                            style={{
+                              flex: 1,
+                              padding: '8px 10px',
+                              fontSize: '0.8rem',
+                              fontWeight: 700,
+                              borderRadius: 'var(--border-radius-sm)',
+                              border: '1.5px solid var(--border-color)',
+                              background: '#FFFFFF',
+                              color: 'var(--text-secondary)',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '4px',
+                              transition: 'all 0.2s ease',
+                              ...(status === 'Present' ? {
+                                background: 'var(--color-success)',
+                                color: '#FFFFFF',
+                                borderColor: 'var(--color-success)',
+                                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)'
+                              } : {})
+                            }}
                           >
-                            Present
+                            <Check size={12} /> Present
                           </button>
                           <button 
                             type="button"
                             className={`att-btn ${status === 'Absent' ? 'absent-active' : ''}`}
                             onClick={() => handleStatusChange(student.id, 'Absent')}
+                            style={{
+                              flex: 1,
+                              padding: '8px 10px',
+                              fontSize: '0.8rem',
+                              fontWeight: 700,
+                              borderRadius: 'var(--border-radius-sm)',
+                              border: '1.5px solid var(--border-color)',
+                              background: '#FFFFFF',
+                              color: 'var(--text-secondary)',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '4px',
+                              transition: 'all 0.2s ease',
+                              ...(status === 'Absent' ? {
+                                background: 'var(--color-danger)',
+                                color: '#FFFFFF',
+                                borderColor: 'var(--color-danger)',
+                                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)'
+                              } : {})
+                            }}
                           >
-                            Absent
+                            <X size={12} /> Absent
                           </button>
                         </div>
                       </div>

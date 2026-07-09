@@ -423,15 +423,16 @@ p {
 
 .chart-tooltip {
   position: absolute;
-  background: rgba(11, 12, 16, 0.95);
-  border: 1px solid var(--color-primary);
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: var(--border-radius-sm);
+  background: #FFFFFF;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 10px 14px;
+  border-radius: var(--border-radius-md);
   font-size: 0.8rem;
   pointer-events: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  z-index: 10;
+  box-shadow: 0 10px 25px rgba(30, 34, 63, 0.08);
+  z-index: 100;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 /* Kanban Board for Lead Tracking */
@@ -449,7 +450,7 @@ p {
 }
 
 .kanban-column {
-  background: rgba(22, 23, 34, 0.4);
+  background: #FAF8F4;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   padding: 16px;
