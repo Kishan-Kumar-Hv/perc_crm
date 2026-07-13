@@ -28,86 +28,82 @@ export default function PERCLogo({ variant = 'vertical', width, height, classNam
       height="100%" 
       style={{ display: 'block', overflow: 'visible' }}
     >
-      {/* 1. GRADUATION CAP (TOP) */}
+      {/* 1. OUTER BOOK LEAVES (NAVY) */}
+      {/* Left Outer Cover (Navy) */}
+      <path 
+        d="M 27 98 L 27 172 C 45 179, 75 186, 100 188 L 100 180 C 78 178, 50 172, 35 164 L 35 106 Z" 
+        fill={navy} 
+      />
+      {/* Right Outer Cover (Navy) */}
+      <path 
+        d="M 173 98 L 173 172 C 155 179, 125 186, 100 188 L 100 180 C 122 178, 150 172, 165 164 L 165 106 Z" 
+        fill={navy} 
+      />
+
+      {/* 2. GOLD/BEIGE LEAVES */}
+      {/* Left Beige Leaf */}
+      <path 
+        d="M 39 95 L 39 160 C 56 166, 80 171, 100 172 L 100 165 C 82 164, 60 159, 47 152 L 47 101 Z" 
+        fill={beige} 
+      />
+      {/* Right Beige Leaf */}
+      <path 
+        d="M 161 95 L 161 160 C 144 166, 120 171, 100 172 L 100 165 C 118 164, 140 159, 153 152 L 153 101 Z" 
+        fill={beige} 
+      />
+
+      {/* 3. CENTRAL CONNECTED NAVY BACKGROUND */}
+      {/* Neck/dome transition background behind pen nib tip */}
+      <path 
+        d="M 72 86 Q 100 64 128 86 Z" 
+        fill={navy} 
+      />
+      {/* Inner Book Pages (Navy) */}
+      <path 
+        d="M 51 92 Q 75 80 100 96 Q 125 80 149 92 L 149 154 Q 125 168 100 166 Q 75 168 51 154 Z" 
+        fill={navy} 
+      />
+
+      {/* 4. FOUNTAIN PEN NIB (SOLID WHITE) */}
+      <path 
+        d="M 100 70 L 84 96 C 83 108, 88 128, 88 152 L 100 166 L 112 152 C 112 128, 117 108, 116 96 Z" 
+        fill="#FFFFFF" 
+      />
+      {/* Pen Nib Details (Navy) */}
+      <line 
+        x1="100" 
+        y1="74" 
+        x2="100" 
+        y2="114" 
+        stroke={navy} 
+        strokeWidth="2.5" 
+        strokeLinecap="round" 
+      />
+      <circle cx="100" cy="114" r="3.5" fill={navy} />
+
+      {/* 5. GRADUATION CAP (TOP) */}
       {/* Top Diamond Board */}
       <path 
-        d="M 100 22 L 155 42 L 100 62 L 45 42 Z" 
+        d="M 100 15 L 182 43 L 100 71 L 18 43 Z" 
         fill={navy} 
       />
       {/* Cap Skull Base */}
       <path 
-        d="M 74 48 L 74 61 C 74 72, 126 72, 126 61 L 126 48 Z" 
+        d="M 68 50 C 68 50, 68 61, 68 61 C 68 73, 132 73, 132 61 L 132 50 C 112 55, 88 55, 68 50 Z" 
         fill={navy} 
       />
       {/* Tassel (hanging to the right) */}
       <path 
-        d="M 100 42 L 146 45 L 146 64" 
+        d="M 100 43 L 146 46 L 146 72" 
         stroke={navy} 
-        strokeWidth="3" 
+        strokeWidth="2.5" 
         fill="none" 
         strokeLinecap="round" 
         strokeLinejoin="round" 
       />
-      <circle cx="146" cy="67" r="3.5" fill={navy} />
-
-      {/* 2. OPEN BOOK PAGES & COVER */}
-      
-      {/* Outer book cover / page border (Beige layer) */}
-      {/* Left page underlayer */}
       <path 
-        d="M 94 92 C 72 88, 52 94, 48 98 L 48 126 C 52 122, 72 116, 94 120 Z" 
-        fill={beige} 
-      />
-      {/* Right page underlayer */}
-      <path 
-        d="M 106 92 C 128 88, 148 94, 152 98 L 152 126 C 148 122, 128 116, 106 120 Z" 
-        fill={beige} 
-      />
-      
-      {/* Left page beige shadow border bottom */}
-      <path 
-        d="M 48 126 C 58 132, 80 134, 94 129 L 94 133 C 80 138, 58 136, 48 130 Z" 
-        fill={beige} 
-      />
-      {/* Right page beige shadow border bottom */}
-      <path 
-        d="M 152 126 C 142 132, 120 134, 106 129 L 106 133 C 120 138, 142 136, 152 130 Z" 
-        fill={beige} 
-      />
-
-      {/* Main Pages (Navy Blue) */}
-      {/* Left page */}
-      <path 
-        d="M 94 88 C 72 84, 54 90, 50 94 L 50 122 C 54 118, 72 112, 94 116 Z" 
+        d="M 143 72 L 149 72 L 151 83 L 141 83 Z" 
         fill={navy} 
-      />
-      {/* Right page */}
-      <path 
-        d="M 106 88 C 128 84, 146 90, 150 94 L 150 122 C 146 118, 128 112, 106 116 Z" 
-        fill={navy} 
-      />
-
-      {/* 3. FOUNTAIN PEN NIB (NEGATIVE SPACE IN THE GUTTER) */}
-      {/* Nib Outer Silhouette */}
-      <path 
-        d="M 94 132 C 94 125, 96 112, 100 86 C 104 112, 106 125, 106 132 Z" 
-        fill={navy} 
-      />
-      {/* Nib Tip cut-out (White) */}
-      <path 
-        d="M 100 86 L 103 102 L 97 102 Z" 
-        fill="#FFFFFF" 
-      />
-      {/* Nib Breather Hole (White) */}
-      <circle cx="100" cy="112" r="3.5" fill="#FFFFFF" />
-      {/* Nib Slit Line (White) */}
-      <line 
-        x1="100" 
-        y1="102" 
-        x2="100" 
-        y2="128" 
-        stroke="#FFFFFF" 
-        strokeWidth="2.5" 
       />
     </svg>
   );
