@@ -16,6 +16,7 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [expandedGradeId, setExpandedGradeId] = useState(null);
   const [hoveredGradePoint, setHoveredGradePoint] = useState(null);
+  const [attendanceFilter, setAttendanceFilter] = useState('all');
 
   // Helper for generating smooth cubic Bezier paths
   const getBezierPath = (points) => {
@@ -79,6 +80,11 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
     const status = attendance[key][studentId] || 'Absent';
     return { date, status };
   }).sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort latest first
+
+  const filteredLogs = childAttendanceLogs.filter(log => {
+    if (attendanceFilter === 'all') return true;
+    return log.status.toLowerCase() === attendanceFilter;
+  });
 
   // Calculate overall attendance percentage
   const totalDays = childAttendanceLogs.length;
@@ -651,8 +657,25 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
         {/* Tab: Attendance */}
         {activeTab === 'attendance' && (
           <div className="crm-card">
-            <h3 className="crm-card-title"><Clock size={18} color="var(--color-info)" /> Historical Attendance Logs</h3>
-            <div className="table-wrapper" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '12px', flexWrap: 'wrap' }}>
+              <h3 className="crm-card-title" style={{ margin: 0 }}><Clock size={18} color="var(--color-info)" /> Historical Attendance Logs</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className="form-label" style={{ margin: 0, fontSize: '0.8rem', fontWeight: 600 }}>Filter:</span>
+                <select 
+                  value={attendanceFilter} 
+                  onChange={(e) => setAttendanceFilter(e.target.value)}
+                  className="select-dropdown"
+                  style={{ padding: '6px 12px', fontSize: '0.8rem', minWidth: '120px', margin: 0 }}
+                >
+                  <option value="all">All Records</option>
+                  <option value="present">Present</option>
+                  <option value="absent">Absent</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Desktop Only Table View */}
+            <div className="table-wrapper desktop-only-table" style={{ maxHeight: '400px', overflowY: 'auto' }}>
               <table className="crm-table">
                 <thead>
                   <tr>
@@ -662,8 +685,8 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
                   </tr>
                 </thead>
                 <tbody>
-                  {childAttendanceLogs.length > 0 ? (
-                    childAttendanceLogs.map((log, idx) => (
+                  {filteredLogs.length > 0 ? (
+                    filteredLogs.map((log, idx) => (
                       <tr key={idx}>
                         <td>{log.date}</td>
                         <td>{child.courseEnrolled}</td>
@@ -683,12 +706,53 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
                   ) : (
                     <tr>
                       <td colSpan="3" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
-                        No daily attendance logs mapped for this student.
+                        No daily attendance logs matched the selected filter.
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile Only List View */}
+            <div className="mobile-only-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {filteredLogs.length > 0 ? (
+                filteredLogs.map((log, idx) => (
+                  <div 
+                    key={idx} 
+                    className="accordion-item" 
+                    style={{ 
+                      padding: '12px 16px', 
+                      background: 'var(--bg-card-hover)', 
+                      border: '1px solid var(--border-color)', 
+                      borderRadius: 'var(--border-radius-sm)', 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center' 
+                    }}
+                  >
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-primary)' }}>{log.date}</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{child.courseEnrolled}</span>
+                    </div>
+                    <div>
+                      {log.status === 'Present' ? (
+                        <span className="badge badge-success" style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', padding: '4px 8px', width: 'fit-content' }}>
+                          <CheckCircle size={12} /> Present
+                        </span>
+                      ) : (
+                        <span className="badge badge-danger" style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', padding: '4px 8px', width: 'fit-content' }}>
+                          <XCircle size={12} /> Absent
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                  No attendance records matched the selected filter.
+                </div>
+              )}
             </div>
           </div>
         )}
