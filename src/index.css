@@ -40,7 +40,7 @@
   --border-radius-md: 14px;
   --border-radius-lg: 24px;
   
-  --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   --glass-blur: blur(12px);
   --shadow-premium: 0 10px 30px -10px rgba(30, 34, 63, 0.08), 0 1px 3px rgba(30, 34, 63, 0.04);
   --shadow-hover: 0 20px 40px -15px rgba(30, 34, 63, 0.15), 0 1px 5px rgba(30, 34, 63, 0.06);
@@ -675,6 +675,9 @@ p {
   cursor: pointer;
   transition: var(--transition-smooth);
   text-decoration: none;
+  will-change: transform, box-shadow;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
 .btn-primary {
@@ -1304,6 +1307,7 @@ p {
   height: 130%;
   background: radial-gradient(circle, rgba(30, 34, 63, 0.05) 0%, rgba(30, 34, 63, 0.04) 50%, transparent 70%);
   z-index: 1;
+  pointer-events: none;
 }
 
 .visual-mockup {
@@ -1317,6 +1321,9 @@ p {
   max-width: 560px;
   box-shadow: var(--shadow-hover);
   animation: float 6s ease-in-out infinite;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
 /* Mockup elements */
@@ -1735,6 +1742,9 @@ p {
 
 .float-anim {
   animation: float 6s ease-in-out infinite;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
 .glow-anim {
@@ -1794,6 +1804,9 @@ p {
   opacity: 0;
   transition: opacity 0.4s ease-in-out;
   z-index: 1;
+  will-change: opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
 .hero-slider-slide.active {
