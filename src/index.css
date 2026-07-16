@@ -748,6 +748,12 @@ p {
   background: var(--bg-card);
 }
 
+.table-responsive {
+  overflow-x: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
 .crm-table {
   width: 100%;
   border-collapse: collapse;
@@ -2522,4 +2528,29 @@ input[type=number]::-webkit-outer-spin-button {
 }
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+/* Financial Fee Summary Grid & Mobile Adjustments */
+.fee-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 28px;
+}
+
+.fee-summary-col {
+  margin-top: 0 !important;
+}
+
+.fee-summary-col.split-col {
+  border-left: 1px solid var(--border-color);
+  padding-left: 24px;
+}
+
+@media (max-width: 768px) {
+  .fee-summary-col.split-col {
+    border-left: none !important;
+    padding-left: 0 !important;
+    border-top: 1px solid var(--border-color);
+    padding-top: 24px;
+  }
 }

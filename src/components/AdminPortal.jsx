@@ -748,8 +748,8 @@ export default function AdminPortal({ onSignOut }) {
                 <DollarSign size={18} color="var(--color-success)" />
                 Fee Payment Collections & Financial Ledger
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '28px' }}>
-                <div className="profile-meta-grid" style={{ marginTop: '0' }}>
+              <div className="fee-summary-grid">
+                <div className="profile-meta-grid fee-summary-col">
                   <div className="profile-meta-item">
                     <span className="profile-meta-label">Cleared Accounts</span>
                     <span className="profile-meta-val badge badge-success">{paidCount} Students</span>
@@ -770,7 +770,7 @@ export default function AdminPortal({ onSignOut }) {
                   </div>
                 </div>
                 
-                <div className="profile-meta-grid" style={{ marginTop: '0', borderLeft: '1px solid var(--border-color)', paddingLeft: '24px' }}>
+                <div className="profile-meta-grid fee-summary-col split-col">
                   <div className="profile-meta-item">
                     <span className="profile-meta-label">Total Expected Fees</span>
                     <span className="profile-meta-val" style={{ fontWeight: '700', color: 'var(--text-primary)' }}>₹{totalExpectedFees}</span>
