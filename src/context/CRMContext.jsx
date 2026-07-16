@@ -6,14 +6,14 @@ export const CRMContext = createContext();
 const defaultStudents = [
   {
     id: 'REG-2026-0001',
-    name: 'Aarav Mehta',
-    parentName: 'Rajesh Mehta',
-    parentContact: '9876543001',
-    parentEmail: 'rajesh.mehta@gmail.com',
-    className: 'Grade 10',
-    courseEnrolled: 'Advanced Mathematics',
+    name: 'Joel',
+    parentName: 'Sundari S',
+    parentContact: '8668394644',
+    parentEmail: 'sundariasha925@gmail.com',
+    className: 'CBSE - 10',
+    courseEnrolled: 'CBSE Class 10 Board Prep',
     batchId: 'B-001',
-    admissionDate: '2026-01-10',
+    admissionDate: '2025-09-01',
     feeStatus: 'Paid'
   }
 ];
@@ -23,16 +23,16 @@ const defaultTeachers = [
     name: 'Dr. Alok Verma',
     email: 'alok.verma@school.com',
     contact: '9876543210',
-    subjects: ['Advanced Mathematics'],
+    subjects: ['Mathematics'],
     assignedBatches: ['B-001']
   }
 ];
 const defaultBatches = [
   {
     id: 'B-001',
-    name: 'Batch Alpha',
-    courseName: 'Advanced Mathematics',
-    timing: '09:00 AM - 10:30 AM',
+    name: 'CBSE - 10',
+    courseName: 'CBSE Class 10 Board Prep',
+    timing: '03:00 PM - 08:00 PM',
     teacherId: 'T-2026-0001'
   }
 ];

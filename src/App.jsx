@@ -66,6 +66,13 @@ function App() {
   const [loginStudentId, setLoginStudentId] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Auth Inputs and Errors
+  const [adminEmail, setAdminEmail] = useState('admin@perc.edu');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [teacherPassword, setTeacherPassword] = useState('');
+  const [parentPin, setParentPin] = useState('');
+  const [loginError, setLoginError] = useState('');
+
   // Auto-validate login selection state against active teacher database
   useEffect(() => {
     if (teachers.length > 0) {
@@ -92,18 +99,47 @@ function App() {
 
   const handlePortalClick = (role) => {
     setLoginRole(role);
+    setLoginError('');
+    setAdminPassword('');
+    setTeacherPassword('');
+    setParentPin('');
     setShowLoginModal(true);
   };
 
-  const handleModalLogin = () => {
-    if (loginRole === 'admin') {
-      setCurrentPortal('admin');
-    } else if (loginRole === 'teacher') {
-      enterTeacherPortal(loginTeacherId);
-    } else if (loginRole === 'parent') {
-      enterParentPortal(loginStudentId);
-    }
+  const closeModal = () => {
     setShowLoginModal(false);
+    setLoginError('');
+    setAdminPassword('');
+    setTeacherPassword('');
+    setParentPin('');
+  };
+
+  const handleModalLogin = () => {
+    setLoginError('');
+    if (loginRole === 'admin') {
+      if (adminEmail.trim() === 'admin@perc.edu' && adminPassword === 'admin123') {
+        setCurrentPortal('admin');
+        closeModal();
+      } else {
+        setLoginError('Invalid Administrator credentials.');
+      }
+    } else if (loginRole === 'teacher') {
+      const selectedTeacher = teachers.find(t => t.id === loginTeacherId);
+      if (selectedTeacher && teacherPassword.trim() === selectedTeacher.contact.trim()) {
+        enterTeacherPortal(loginTeacherId);
+        closeModal();
+      } else {
+        setLoginError('Invalid Faculty credentials (registered phone number required).');
+      }
+    } else if (loginRole === 'parent') {
+      const selectedStudent = students.find(s => s.id === loginStudentId);
+      if (selectedStudent && parentPin.trim() === selectedStudent.parentContact.trim()) {
+        enterParentPortal(loginStudentId);
+        closeModal();
+      } else {
+        setLoginError('Invalid Verification PIN (registered parent phone number required).');
+      }
+    }
   };
 
   // Synchronize portal selection state with context updates
@@ -540,9 +576,9 @@ function App() {
 
         {/* Secure Unified Login Modal (Hides database info on public screen) */}
         {showLoginModal && (
-          <div className="login-modal-backdrop" onClick={() => setShowLoginModal(false)}>
+          <div className="login-modal-backdrop" onClick={closeModal}>
             <div className="login-modal-card" onClick={(e) => e.stopPropagation()}>
-              <button className="login-modal-close" onClick={() => setShowLoginModal(false)}>
+              <button className="login-modal-close" onClick={closeModal}>
                 <X size={18} />
               </button>
 
@@ -560,21 +596,21 @@ function App() {
               <div className="role-btn-group" style={{ marginBottom: '20px', display: 'flex', gap: '8px' }}>
                 <button 
                   className={`role-btn ${loginRole === 'admin' ? 'active' : ''}`}
-                  onClick={() => setLoginRole('admin')}
+                  onClick={() => { setLoginRole('admin'); setLoginError(''); }}
                   style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', fontSize: '0.8rem', padding: '8px' }}
                 >
                   <Shield size={12} /> Admin
                 </button>
                 <button 
                   className={`role-btn ${loginRole === 'teacher' ? 'active' : ''}`}
-                  onClick={() => setLoginRole('teacher')}
+                  onClick={() => { setLoginRole('teacher'); setLoginError(''); }}
                   style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', fontSize: '0.8rem', padding: '8px' }}
                 >
                   <User size={12} /> Teacher
                 </button>
                 <button 
                   className={`role-btn ${loginRole === 'parent' ? 'active' : ''}`}
-                  onClick={() => setLoginRole('parent')}
+                  onClick={() => { setLoginRole('parent'); setLoginError(''); }}
                   style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', fontSize: '0.8rem', padding: '8px' }}
                 >
                   <Users size={12} /> Student / Parent
@@ -586,11 +622,25 @@ function App() {
                   <>
                     <div className="form-group">
                       <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 600 }}>Administrator ID</label>
-                      <input type="text" className="text-input" value="admin@perc.edu" disabled style={{ background: '#f5f5f5', color: '#888' }} />
+                      <input 
+                        type="text" 
+                        className="text-input" 
+                        value={adminEmail} 
+                        onChange={(e) => setAdminEmail(e.target.value)}
+                        placeholder="admin@perc.edu" 
+                        style={{ background: '#fff', color: '#333' }} 
+                      />
                     </div>
                     <div className="form-group">
                       <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 600 }}>Security Code</label>
-                      <input type="password" className="text-input" value="••••••••" disabled style={{ background: '#f5f5f5', color: '#888' }} />
+                      <input 
+                        type="password" 
+                        className="text-input" 
+                        value={adminPassword} 
+                        onChange={(e) => setAdminPassword(e.target.value)}
+                        placeholder="Enter admin password" 
+                        style={{ background: '#fff', color: '#333' }} 
+                      />
                     </div>
                   </>
                 )}
@@ -611,8 +661,15 @@ function App() {
                       </select>
                     </div>
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 600 }}>Password</label>
-                      <input type="password" className="text-input" value="••••••••" disabled style={{ background: '#f5f5f5', color: '#888' }} />
+                      <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 600 }}>Password (Registered Phone Number)</label>
+                      <input 
+                        type="password" 
+                        className="text-input" 
+                        value={teacherPassword} 
+                        onChange={(e) => setTeacherPassword(e.target.value)}
+                        placeholder="Enter your phone number" 
+                        style={{ background: '#fff', color: '#333' }} 
+                      />
                     </div>
                   </>
                 )}
@@ -633,10 +690,23 @@ function App() {
                       </select>
                     </div>
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 600 }}>Verification PIN</label>
-                      <input type="password" className="text-input" value="••••••••" disabled style={{ background: '#f5f5f5', color: '#888' }} />
+                      <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 600 }}>Verification PIN (Parent's Phone Number)</label>
+                      <input 
+                        type="password" 
+                        className="text-input" 
+                        value={parentPin} 
+                        onChange={(e) => setParentPin(e.target.value)}
+                        placeholder="Enter parent's phone number" 
+                        style={{ background: '#fff', color: '#333' }} 
+                      />
                     </div>
                   </>
+                )}
+
+                {loginError && (
+                  <div style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 600, textAlign: 'center', padding: '4px', background: '#fef2f2', borderRadius: '4px', border: '1px solid #fee2e2' }}>
+                    ⚠️ {loginError}
+                  </div>
                 )}
 
                 <button className="btn btn-accent-red" style={{ width: '100%', marginTop: '8px', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} onClick={handleModalLogin}>
