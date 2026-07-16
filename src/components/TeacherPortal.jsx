@@ -43,7 +43,9 @@ export default function TeacherPortal({ teacherId, onChangeTeacher, onSignOut })
   }
 
   // Get batches assigned to this teacher
-  const teacherBatches = batches.filter(b => b.teacherId === teacherId || (teacher?.assignedBatches && teacher.assignedBatches.includes(b.id)));
+  const teacherBatches = React.useMemo(() => {
+    return batches.filter(b => b.teacherId === teacherId || (teacher?.assignedBatches && teacher.assignedBatches.includes(b.id)));
+  }, [batches, teacherId, teacher]);
 
   // Active state for Attendance
   const [selectedAttendanceBatch, setSelectedAttendanceBatch] = useState(teacherBatches[0]?.id || '');
@@ -144,6 +146,21 @@ export default function TeacherPortal({ teacherId, onChangeTeacher, onSignOut })
     setSelectedObsStudent('');
     showToast('Teacher observation logged successfully.', 'success');
   };
+
+  // Auto-select first batch when batches are loaded/changed
+  React.useEffect(() => {
+    if (teacherBatches.length > 0) {
+      if (!selectedAttendanceBatch || !teacherBatches.some(b => b.id === selectedAttendanceBatch)) {
+        setSelectedAttendanceBatch(teacherBatches[0].id);
+      }
+      if (!selectedGradeBatch || !teacherBatches.some(b => b.id === selectedGradeBatch)) {
+        setSelectedGradeBatch(teacherBatches[0].id);
+      }
+      if (!selectedResBatch || !teacherBatches.some(b => b.id === selectedResBatch)) {
+        setSelectedResBatch(teacherBatches[0].id);
+      }
+    }
+  }, [teacherBatches, selectedAttendanceBatch, selectedGradeBatch, selectedResBatch]);
 
   // All student options in teacher's batches
   const teacherStudents = students.filter(s => teacherBatches.some(tb => tb.id === s.batchId));

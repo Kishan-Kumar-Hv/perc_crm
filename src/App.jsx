@@ -667,13 +667,13 @@ function App() {
                       </select>
                     </div>
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 600 }}>Password (Registered Phone Number)</label>
+                      <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 600 }}>Password</label>
                       <input 
                         type="password" 
                         className="text-input" 
                         value={teacherPassword} 
                         onChange={(e) => setTeacherPassword(e.target.value)}
-                        placeholder="Enter your phone number" 
+                        placeholder="Enter your password" 
                         style={{ background: '#fff', color: '#333' }} 
                       />
                     </div>
@@ -696,13 +696,13 @@ function App() {
                       </select>
                     </div>
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 600 }}>Verification PIN (Parent's Phone Number)</label>
+                      <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 600 }}>Password</label>
                       <input 
                         type="password" 
                         className="text-input" 
                         value={parentPin} 
                         onChange={(e) => setParentPin(e.target.value)}
-                        placeholder="Enter parent's phone number" 
+                        placeholder="Enter your password" 
                         style={{ background: '#fff', color: '#333' }} 
                       />
                     </div>
