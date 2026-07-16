@@ -252,8 +252,8 @@ export const CRMProvider = ({ children }) => {
       ...st, 
       id: formattedId, 
       admissionDate: new Date().toISOString().split('T')[0],
-      totalFees: parseInt(st.totalFees) || 6000,
-      feesPaid: parseInt(st.feesPaid) || 0
+      totalFees: st.totalFees !== '' && st.totalFees !== undefined ? parseInt(st.totalFees) : 0,
+      feesPaid: st.feesPaid !== '' && st.feesPaid !== undefined ? parseInt(st.feesPaid) : 0
     };
     setStudents(prev => [...prev, newStudent]);
     showToast('Student registered successfully!', 'success');

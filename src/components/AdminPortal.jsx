@@ -62,7 +62,7 @@ export default function AdminPortal({ onSignOut }) {
   const [studentForm, setStudentForm] = useState({
     name: '', parentName: '', parentContact: '', parentEmail: '',
     className: 'CBSE - 10', courseEnrolled: 'Advanced Mathematics',
-    batchId: '', totalFees: 6000, feesPaid: 0, password: ''
+    batchId: '', totalFees: '', feesPaid: '', password: ''
   });
   const [teacherForm, setTeacherForm] = useState({
     name: '', email: '', contact: '', subjects: '', assignedBatches: [], password: ''
@@ -328,13 +328,13 @@ export default function AdminPortal({ onSignOut }) {
     addStudent({
       ...studentForm,
       password: studentForm.password.trim() || studentForm.parentContact.trim(),
-      totalFees: parseInt(studentForm.totalFees) || 6000,
-      feesPaid: parseInt(studentForm.feesPaid) || 0
+      totalFees: studentForm.totalFees !== '' ? parseInt(studentForm.totalFees) : 0,
+      feesPaid: studentForm.feesPaid !== '' ? parseInt(studentForm.feesPaid) : 0
     });
     setStudentForm({
       name: '', parentName: '', parentContact: '', parentEmail: '',
       className: 'CBSE - 10', courseEnrolled: 'Advanced Mathematics',
-      batchId: '', totalFees: 6000, feesPaid: 0, password: ''
+      batchId: '', totalFees: '', feesPaid: '', password: ''
     });
     setShowStudentModal(false);
   };
@@ -1169,8 +1169,9 @@ export default function AdminPortal({ onSignOut }) {
                       type="number" 
                       required 
                       className="form-input"
-                      value={studentForm.totalFees !== undefined ? studentForm.totalFees : 6000}
-                      onChange={e => setStudentForm({ ...studentForm, totalFees: parseInt(e.target.value) || 0 })}
+                      value={studentForm.totalFees}
+                      onChange={e => setStudentForm({ ...studentForm, totalFees: e.target.value })}
+                      placeholder="e.g. 6000"
                     />
                   </div>
                   <div className="form-group">
@@ -1179,8 +1180,9 @@ export default function AdminPortal({ onSignOut }) {
                       type="number" 
                       required 
                       className="form-input"
-                      value={studentForm.feesPaid !== undefined ? studentForm.feesPaid : 0}
-                      onChange={e => setStudentForm({ ...studentForm, feesPaid: parseInt(e.target.value) || 0 })}
+                      value={studentForm.feesPaid}
+                      onChange={e => setStudentForm({ ...studentForm, feesPaid: e.target.value })}
+                      placeholder="e.g. 3500"
                     />
                   </div>
                 </div>
