@@ -54,6 +54,15 @@
   padding: 0;
 }
 
+button:focus, input:focus, select:focus, textarea:focus {
+  outline: none;
+}
+
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(30, 34, 63, 0.15) !important;
+}
+
 body {
   font-family: var(--font-family);
   background-color: var(--bg-app);
