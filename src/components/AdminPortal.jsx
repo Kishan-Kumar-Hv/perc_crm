@@ -3,17 +3,17 @@ import { CRMContext } from '../context/CRMContext';
 import { 
   Users, UserCheck, LayoutDashboard, Bookmark, Bell, Plus, Trash2, 
   Search, TrendingUp, DollarSign, Calendar, Sliders, ChevronRight, ChevronLeft, ArrowRightLeft,
-  LogOut, Menu, X, BookOpen, ChevronDown, ChevronUp, Key, RefreshCw
+  LogOut, Menu, X, BookOpen, ChevronDown, ChevronUp, Key, RefreshCw, Edit
 } from 'lucide-react';
 import PERCLogo from './PERCLogo';
 
 export default function AdminPortal({ onSignOut }) {
   const { 
-    students, teachers, batches, announcements, 
+    students, teachers, batches, announcements, attendance,
     addStudent, updateStudent, deleteStudent, 
     addTeacher, updateTeacher, deleteTeacher, 
     addAnnouncement, deleteAnnouncement,
-    addBatch, deleteBatch
+    addBatch, updateBatch, deleteBatch
   } = useContext(CRMContext);
 
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -46,6 +46,10 @@ export default function AdminPortal({ onSignOut }) {
   const [showAnnModal, setShowAnnModal] = useState(false);
   const [showBatchModal, setShowBatchModal] = useState(false);
 
+  const [showEditStudentModal, setShowEditStudentModal] = useState(false);
+  const [showEditTeacherModal, setShowEditTeacherModal] = useState(false);
+  const [showEditBatchModal, setShowEditBatchModal] = useState(false);
+
   // Accordion lists state
   const [expandedStudentId, setExpandedStudentId] = useState(null);
   const [expandedTeacherId, setExpandedTeacherId] = useState(null);
@@ -69,6 +73,18 @@ export default function AdminPortal({ onSignOut }) {
   });
   const [annForm, setAnnForm] = useState({
     type: 'Holiday', title: '', content: ''
+  });
+
+  const [editStudentForm, setEditStudentForm] = useState({
+    id: '', name: '', parentName: '', parentContact: '', parentEmail: '',
+    className: 'CBSE - 10', courseEnrolled: 'Advanced Mathematics',
+    batchId: '', totalFees: '', feesPaid: '', password: ''
+  });
+  const [editTeacherForm, setEditTeacherForm] = useState({
+    id: '', name: '', email: '', contact: '', subjects: '', assignedBatches: [], password: ''
+  });
+  const [editBatchForm, setEditBatchForm] = useState({
+    id: '', name: '', courseName: 'Advanced Mathematics', timing: '', teacherId: ''
   });
 
   const [showPassModal, setShowPassModal] = useState(false);
@@ -118,7 +134,7 @@ export default function AdminPortal({ onSignOut }) {
           </div>
         )}
 
-        <svg className="chart-svg" viewBox="0 0 400 200">
+        <svg className="chart-svg" viewBox="0 0 500 200">
           <defs>
             <linearGradient id="bar-gradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="var(--color-primary)" />
@@ -127,15 +143,15 @@ export default function AdminPortal({ onSignOut }) {
           </defs>
 
           {/* Grid lines */}
-          <line x1="40" y1="30" x2="380" y2="30" className="chart-grid-line" strokeWidth="0.5" />
-          <line x1="40" y1="80" x2="380" y2="80" className="chart-grid-line" strokeWidth="0.5" />
-          <line x1="40" y1="130" x2="380" y2="130" className="chart-grid-line" strokeWidth="0.5" />
-          <line x1="40" y1="170" x2="380" y2="170" stroke="var(--border-color)" strokeWidth="1" />
+          <line x1="30" y1="30" x2="470" y2="30" className="chart-grid-line" strokeWidth="0.5" />
+          <line x1="30" y1="80" x2="470" y2="80" className="chart-grid-line" strokeWidth="0.5" />
+          <line x1="30" y1="130" x2="470" y2="130" className="chart-grid-line" strokeWidth="0.5" />
+          <line x1="30" y1="170" x2="470" y2="170" stroke="var(--border-color)" strokeWidth="1" />
 
           {data.map(([label, val], idx) => {
-            const barWidth = 45;
-            const barSpacing = 100;
-            const x = 70 + idx * barSpacing;
+            const barWidth = 40;
+            const barSpacing = 85;
+            const x = 55 + idx * barSpacing;
             const height = (val / maxVal) * 120;
             const y = 170 - height;
             const isHovered = hoveredDemoPoint && hoveredDemoPoint.label === label;
@@ -196,8 +212,49 @@ export default function AdminPortal({ onSignOut }) {
 
   // Render SVG Attendance Trend Chart
   const renderAttendanceChart = () => {
-    // Generate static values based on mock database dates
-    const data = [
+    // Dynamically calculate attendance trend from DB records
+    const datesMap = {}; // date -> { present: 0, total: 0 }
+    
+    Object.keys(attendance || {}).forEach(key => {
+      const parts = key.split('_');
+      if (parts.length >= 2) {
+        const date = parts[1];
+        const records = attendance[key] || {};
+        
+        if (!datesMap[date]) {
+          datesMap[date] = { present: 0, total: 0 };
+        }
+        
+        Object.values(records).forEach(status => {
+          datesMap[date].total++;
+          if (status === 'Present') {
+            datesMap[date].present++;
+          }
+        });
+      }
+    });
+    
+    const trendData = Object.entries(datesMap).map(([dateStr, stats]) => {
+      const rate = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 100;
+      let displayDate = dateStr;
+      if (dateStr.includes('-')) {
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+          displayDate = `${parts[1]}-${parts[2]}`; // MM-DD
+        }
+      }
+      return { 
+        rawDate: dateStr, 
+        date: displayDate, 
+        rate 
+      };
+    });
+    
+    // Sort by rawDate chronologically
+    trendData.sort((a, b) => new Date(a.rawDate) - new Date(b.rawDate));
+    
+    // Fallback if no records exist yet
+    const data = trendData.length > 0 ? trendData.slice(-7) : [
       { date: '07-01', rate: 80 },
       { date: '07-02', rate: 85 },
       { date: '07-03', rate: 75 }
@@ -339,6 +396,16 @@ export default function AdminPortal({ onSignOut }) {
     setShowStudentModal(false);
   };
 
+  const handleEditStudentSubmit = (e) => {
+    e.preventDefault();
+    updateStudent({
+      ...editStudentForm,
+      totalFees: editStudentForm.totalFees !== '' ? parseInt(editStudentForm.totalFees) : 0,
+      feesPaid: editStudentForm.feesPaid !== '' ? parseInt(editStudentForm.feesPaid) : 0
+    });
+    setShowEditStudentModal(false);
+  };
+
   // Teacher Actions
   const handleTeacherBatchToggle = (batchId) => {
     const current = teacherForm.assignedBatches || [];
@@ -363,6 +430,56 @@ export default function AdminPortal({ onSignOut }) {
 
     setTeacherForm({ name: '', email: '', contact: '', subjects: '', assignedBatches: [], password: '' });
     setShowTeacherModal(false);
+  };
+
+  const handleEditTeacherBatchToggle = (batchId) => {
+    const current = editTeacherForm.assignedBatches || [];
+    const updated = current.includes(batchId)
+      ? current.filter(id => id !== batchId)
+      : [...current, batchId];
+    setEditTeacherForm({ ...editTeacherForm, assignedBatches: updated });
+  };
+
+  const handleEditTeacherSubmit = (e) => {
+    e.preventDefault();
+    const subArray = typeof editTeacherForm.subjects === 'string'
+      ? editTeacherForm.subjects.split(',').map(s => s.trim()).filter(Boolean)
+      : editTeacherForm.subjects;
+    updateTeacher({
+      ...editTeacherForm,
+      subjects: subArray
+    });
+    setShowEditTeacherModal(false);
+  };
+
+  const openEditStudent = (student) => {
+    setEditStudentForm({
+      id: student.id,
+      name: student.name || '',
+      parentName: student.parentName || '',
+      parentContact: student.parentContact || '',
+      parentEmail: student.parentEmail || '',
+      className: student.className || 'CBSE - 10',
+      courseEnrolled: student.courseEnrolled || 'Advanced Mathematics',
+      batchId: student.batchId || '',
+      totalFees: student.totalFees !== undefined ? String(student.totalFees) : '',
+      feesPaid: student.feesPaid !== undefined ? String(student.feesPaid) : '',
+      password: student.password || ''
+    });
+    setShowEditStudentModal(true);
+  };
+
+  const openEditTeacher = (teacher) => {
+    setEditTeacherForm({
+      id: teacher.id,
+      name: teacher.name || '',
+      email: teacher.email || '',
+      contact: teacher.contact || '',
+      subjects: Array.isArray(teacher.subjects) ? teacher.subjects.join(', ') : '',
+      assignedBatches: teacher.assignedBatches || [],
+      password: teacher.password || ''
+    });
+    setShowEditTeacherModal(true);
   };
 
   const openPassModal = (type, data) => {
@@ -392,6 +509,27 @@ export default function AdminPortal({ onSignOut }) {
     addBatch(batchForm);
     setBatchForm({ name: '', courseName: 'Advanced Mathematics', timing: '', teacherId: '' });
     setShowBatchModal(false);
+  };
+
+  const handleEditBatchSubmit = (e) => {
+    e.preventDefault();
+    if (!editBatchForm.name || !editBatchForm.timing) {
+      alert('Please fill out batch name and timings.');
+      return;
+    }
+    updateBatch(editBatchForm);
+    setShowEditBatchModal(false);
+  };
+
+  const openEditBatch = (batch) => {
+    setEditBatchForm({
+      id: batch.id,
+      name: batch.name || '',
+      courseName: batch.courseName || 'Advanced Mathematics',
+      timing: batch.timing || '',
+      teacherId: batch.teacherId || ''
+    });
+    setShowEditBatchModal(true);
   };
 
   // Announcement Actions
@@ -687,6 +825,14 @@ export default function AdminPortal({ onSignOut }) {
                           <td>
                             <button 
                               className="lead-action-btn"
+                              style={{ color: 'var(--color-info)', marginRight: '8px' }}
+                              onClick={() => openEditStudent(student)}
+                              title="Edit Student"
+                            >
+                              <Edit size={16} />
+                            </button>
+                            <button 
+                              className="lead-action-btn"
                               style={{ color: 'var(--color-warning, #f59e0b)', marginRight: '8px' }}
                               onClick={() => handleUpdateStudentPassword(student)}
                               title="Change Password"
@@ -771,20 +917,27 @@ export default function AdminPortal({ onSignOut }) {
                              })()}
                            </span>
                           </div>
-                          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end', gap: '8px', flexWrap: 'wrap' }}>
+                             <button 
+                               className="btn btn-primary" 
+                               style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px', border: 'none' }}
+                               onClick={(e) => { e.stopPropagation(); openEditStudent(student); }}
+                             >
+                               <Edit size={12} /> Edit
+                             </button>
                              <button 
                                className="btn btn-secondary" 
                                style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--color-warning, #f59e0b)', color: '#fff', border: 'none' }}
                                onClick={(e) => { e.stopPropagation(); handleUpdateStudentPassword(student); }}
                              >
-                               <Key size={12} /> Change Password
+                               <Key size={12} /> Password
                              </button>
                              <button 
                                className="btn btn-danger" 
                                style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
                                onClick={(e) => { e.stopPropagation(); deleteStudent(student.id); }}
                              >
-                               <Trash2 size={12} /> Delete Student
+                               <Trash2 size={12} /> Delete
                              </button>
                            </div>
                         </div>
@@ -840,6 +993,14 @@ export default function AdminPortal({ onSignOut }) {
                         })()}
                       </td>
                       <td>
+                        <button 
+                          className="lead-action-btn"
+                          style={{ color: 'var(--color-info)', marginRight: '8px' }}
+                          onClick={() => openEditTeacher(t)}
+                          title="Edit Faculty"
+                        >
+                          <Edit size={16} />
+                        </button>
                         <button 
                           className="lead-action-btn"
                           style={{ color: 'var(--color-warning, #f59e0b)', marginRight: '8px' }}
@@ -904,20 +1065,27 @@ export default function AdminPortal({ onSignOut }) {
                               {teacherBatches.map(b => b.name).join(', ') || 'None'}
                             </span>
                           </div>
-                          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end', gap: '8px', flexWrap: 'wrap' }}>
+                             <button 
+                               className="btn btn-primary" 
+                               style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px', border: 'none' }}
+                               onClick={(e) => { e.stopPropagation(); openEditTeacher(teacher); }}
+                             >
+                               <Edit size={12} /> Edit
+                             </button>
                              <button 
                                className="btn btn-secondary" 
                                style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--color-warning, #f59e0b)', color: '#fff', border: 'none' }}
                                onClick={(e) => { e.stopPropagation(); handleUpdateTeacherPassword(teacher); }}
                              >
-                               <Key size={12} /> Change Password
+                               <Key size={12} /> Password
                              </button>
                              <button 
                                className="btn btn-danger" 
                                style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
                                onClick={(e) => { e.stopPropagation(); deleteTeacher(teacher.id); }}
                              >
-                               <Trash2 size={12} /> Delete Faculty
+                               <Trash2 size={12} /> Delete
                              </button>
                            </div>
                         </div>
@@ -1003,6 +1171,13 @@ export default function AdminPortal({ onSignOut }) {
                             <td>
                               <button 
                                 className="btn btn-secondary" 
+                                onClick={() => openEditBatch(b)}
+                                style={{ padding: '6px 12px', fontSize: '0.75rem', background: 'rgba(59, 130, 246, 0.1)', color: 'var(--color-info)', border: 'none', borderRadius: '4px', cursor: 'pointer', marginRight: '8px' }}
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                className="btn btn-secondary" 
                                 onClick={() => deleteBatch(b.id)}
                                 style={{ padding: '6px 12px', fontSize: '0.75rem', background: 'rgba(220,38,38,0.1)', color: 'rgb(220,38,38)', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                               >
@@ -1047,7 +1222,14 @@ export default function AdminPortal({ onSignOut }) {
                               <span className="accordion-detail-label">Instructor</span>
                               <span className="accordion-detail-value">{teacher ? teacher.name : 'Unassigned'}</span>
                             </div>
-                            <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
+                            <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                              <button 
+                                className="btn btn-primary" 
+                                style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px', border: 'none' }}
+                                onClick={(e) => { e.stopPropagation(); openEditBatch(batch); }}
+                              >
+                                <Edit size={12} /> Edit Batch
+                              </button>
                               <button 
                                 className="btn btn-danger" 
                                 style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
@@ -1422,6 +1604,299 @@ export default function AdminPortal({ onSignOut }) {
           </div>
         </div>
       )}
+
+      {/* Edit Student Modal */}
+      {showEditStudentModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3 className="modal-title">Edit Student Profile ({editStudentForm.id})</h3>
+              <button className="close-btn" onClick={() => setShowEditStudentModal(false)}>&times;</button>
+            </div>
+            <form onSubmit={handleEditStudentSubmit}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="form-label">Student Full Name</label>
+                  <input 
+                    type="text" 
+                    required 
+                    className="form-input"
+                    value={editStudentForm.name} 
+                    onChange={e => setEditStudentForm({ ...editStudentForm, name: e.target.value })}
+                  />
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Parent Name</label>
+                    <input 
+                      type="text" 
+                      required 
+                      className="form-input"
+                      value={editStudentForm.parentName}
+                      onChange={e => setEditStudentForm({ ...editStudentForm, parentName: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Parent Contact Number</label>
+                    <input 
+                      type="tel" 
+                      required 
+                      className="form-input"
+                      value={editStudentForm.parentContact}
+                      onChange={e => setEditStudentForm({ ...editStudentForm, parentContact: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Parent Email Address</label>
+                  <input 
+                    type="email" 
+                    required 
+                    className="form-input"
+                    value={editStudentForm.parentEmail}
+                    onChange={e => setEditStudentForm({ ...editStudentForm, parentEmail: e.target.value })}
+                  />
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Class</label>
+                    <select 
+                      className="select-dropdown"
+                      value={editStudentForm.className}
+                      onChange={e => setEditStudentForm({ ...editStudentForm, className: e.target.value })}
+                    >
+                      <option>CBSE - 10</option>
+                      <option>ICSE - 10</option>
+                      <option>Class 9</option>
+                      <option>Class 8</option>
+                      <option>Class 6-7</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Course Enrolled</label>
+                    <input 
+                      type="text" 
+                      required 
+                      className="form-input"
+                      value={editStudentForm.courseEnrolled}
+                      onChange={e => setEditStudentForm({ ...editStudentForm, courseEnrolled: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Smart Batch Assignment</label>
+                    <select 
+                      className="select-dropdown"
+                      value={editStudentForm.batchId}
+                      onChange={e => setEditStudentForm({ ...editStudentForm, batchId: e.target.value })}
+                    >
+                      <option value="">No Batch Assigned</option>
+                      {batches.map(b => (
+                        <option key={b.id} value={b.id}>{b.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Total Course Fees ($)</label>
+                    <input 
+                      type="number" 
+                      required 
+                      className="form-input"
+                      value={editStudentForm.totalFees}
+                      onChange={e => setEditStudentForm({ ...editStudentForm, totalFees: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Fees Paid So Far ($)</label>
+                    <input 
+                      type="number" 
+                      required 
+                      className="form-input"
+                      value={editStudentForm.feesPaid}
+                      onChange={e => setEditStudentForm({ ...editStudentForm, feesPaid: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="form-group" style={{ marginTop: '12px' }}>
+                  <label className="form-label">Login Password / Verification PIN</label>
+                  <input 
+                    type="text" 
+                    required
+                    className="form-input"
+                    value={editStudentForm.password}
+                    onChange={e => setEditStudentForm({ ...editStudentForm, password: e.target.value })}
+                  />
+                </div>
+                <div className="form-actions">
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowEditStudentModal(false)}>Cancel</button>
+                  <button type="submit" className="btn btn-primary">Save Changes</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Faculty Modal */}
+      {showEditTeacherModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3 className="modal-title">Edit Faculty Profile ({editTeacherForm.id})</h3>
+              <button className="close-btn" onClick={() => setShowEditTeacherModal(false)}>&times;</button>
+            </div>
+            <form onSubmit={handleEditTeacherSubmit}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="form-label">Teacher Name</label>
+                  <input 
+                    type="text" 
+                    required 
+                    className="form-input"
+                    value={editTeacherForm.name}
+                    onChange={e => setEditTeacherForm({ ...editTeacherForm, name: e.target.value })}
+                  />
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Email Address</label>
+                    <input 
+                      type="email" 
+                      required 
+                      className="form-input"
+                      value={editTeacherForm.email}
+                      onChange={e => setEditTeacherForm({ ...editTeacherForm, email: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Contact Number</label>
+                    <input 
+                      type="tel" 
+                      required 
+                      className="form-input"
+                      value={editTeacherForm.contact}
+                      onChange={e => setEditTeacherForm({ ...editTeacherForm, contact: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Subject Areas (Comma Separated)</label>
+                  <input 
+                    type="text" 
+                    required 
+                    className="form-input"
+                    value={editTeacherForm.subjects}
+                    onChange={e => setEditTeacherForm({ ...editTeacherForm, subjects: e.target.value })}
+                  />
+                </div>
+                 <div className="form-group">
+                  <label className="form-label" style={{ marginBottom: '8px' }}>Assign Batches</label>
+                  {batches.length === 0 ? (
+                    <span className="text-muted" style={{ fontSize: '0.85rem' }}>No active batches found. Create a batch first.</span>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: 'rgba(30, 34, 63, 0.03)', padding: '12px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', maxHeight: '120px', overflowY: 'auto' }}>
+                      {batches.map(b => (
+                        <label key={b.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', cursor: 'pointer', userSelect: 'none' }}>
+                          <input 
+                            type="checkbox" 
+                            checked={editTeacherForm.assignedBatches?.includes(b.id) || false}
+                            onChange={() => handleEditTeacherBatchToggle(b.id)}
+                            style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                          />
+                          {b.name} ({b.courseName})
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="form-group" style={{ marginTop: '12px' }}>
+                  <label className="form-label">Login Password</label>
+                  <input 
+                    type="text" 
+                    required
+                    className="form-input"
+                    value={editTeacherForm.password}
+                    onChange={e => setEditTeacherForm({ ...editTeacherForm, password: e.target.value })}
+                  />
+                </div>
+                <div className="form-actions">
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowEditTeacherModal(false)}>Cancel</button>
+                  <button type="submit" className="btn btn-primary">Save Changes</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Academic Batch Modal */}
+      {showEditBatchModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3 className="modal-title">Edit Academic Batch ({editBatchForm.id})</h3>
+              <button className="close-btn" onClick={() => setShowEditBatchModal(false)}>&times;</button>
+            </div>
+            <form onSubmit={handleEditBatchSubmit}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="form-label">Batch Name</label>
+                  <input 
+                    type="text" 
+                    required 
+                    className="form-input"
+                    value={editBatchForm.name}
+                    onChange={e => setEditBatchForm({ ...editBatchForm, name: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Course Program</label>
+                  <select 
+                    className="select-dropdown"
+                    value={editBatchForm.courseName}
+                    onChange={e => setEditBatchForm({ ...editBatchForm, courseName: e.target.value })}
+                  >
+                    <option>Advanced Mathematics</option>
+                    <option>Advanced Physics</option>
+                    <option>Organic Chemistry</option>
+                    <option>State CET</option>
+                    <option>School Tuition</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Class Timing</label>
+                  <input 
+                    type="text" 
+                    required 
+                    className="form-input"
+                    value={editBatchForm.timing}
+                    onChange={e => setEditBatchForm({ ...editBatchForm, timing: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Assign Faculty Member</label>
+                  <select 
+                    className="select-dropdown"
+                    value={editBatchForm.teacherId}
+                    onChange={e => setEditBatchForm({ ...editBatchForm, teacherId: e.target.value })}
+                  >
+                    <option value="">Select Instructor (Optional)</option>
+                    {teachers.map(t => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-actions">
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowEditBatchModal(false)}>Cancel</button>
+                  <button type="submit" className="btn btn-primary">Save Changes</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Custom Password Update Modal */}
       {showPassModal && passTarget && (
         <div className="modal-overlay" onClick={() => setShowPassModal(false)}>

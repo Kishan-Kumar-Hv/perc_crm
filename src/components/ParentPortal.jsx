@@ -64,6 +64,11 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
     );
   }
 
+  // Calculate dynamic fee status
+  const feesPaid = child.feesPaid || 0;
+  const totalFees = child.totalFees || 0;
+  const feeStatus = feesPaid >= totalFees && totalFees > 0 ? 'Paid' : (feesPaid > 0 ? 'Partial' : 'Unpaid');
+
   // Get child's batch
   const batch = batches.find(b => b.id === child.batchId);
   
@@ -99,7 +104,7 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
 
   // Filter targeted announcements (Fee Alerts are relevant if fees aren't fully paid)
   const childAnnouncements = announcements.filter(ann => {
-    if (ann.type === 'Fee' && child.feeStatus === 'Paid') return false;
+    if (ann.type === 'Fee' && feeStatus === 'Paid') return false;
     return true;
   });
 
@@ -417,7 +422,7 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
         {activeTab === 'overview' && (
           <>
             {/* Quick Warning Alerts */}
-            {child.feeStatus !== 'Paid' && (
+            {feeStatus !== 'Paid' && (
               <div style={{
                 background: 'rgba(255, 23, 68, 0.12)',
                 border: '1px solid rgba(255, 23, 68, 0.3)',
@@ -430,7 +435,7 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
                 <AlertTriangle color="var(--color-danger)" />
                 <div style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>
                   <span style={{ fontWeight: 600, color: 'var(--color-danger)' }}>Pending Dues Alert: </span>
-                  Your child's fee status is marked as <span className="badge badge-danger">{child.feeStatus}</span>. Please clear outstanding installments by logging into the portal payment gateway.
+                  Your child's fee status is marked as <span className={`badge ${feeStatus === 'Partial' ? 'badge-warning' : 'badge-danger'}`}>{feeStatus}</span>. Please clear outstanding installments by logging into the portal payment gateway.
                 </div>
               </div>
             )}
@@ -507,8 +512,8 @@ export default function ParentPortal({ studentId, onChangeStudent, onSignOut }) 
                 </div>
                 <div style={{ marginTop: '16px', borderTop: '1px solid var(--border-color)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span className="profile-meta-label" style={{ margin: 0 }}>Fee Invoices:</span>
-                  <span className={`badge ${child.feeStatus === 'Paid' ? 'badge-success' : child.feeStatus === 'Partial' ? 'badge-warning' : 'badge-danger'}`}>
-                    {child.feeStatus}
+                  <span className={`badge ${feeStatus === 'Paid' ? 'badge-success' : feeStatus === 'Partial' ? 'badge-warning' : 'badge-danger'}`}>
+                    {feeStatus}
                   </span>
                 </div>
               </div>

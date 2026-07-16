@@ -302,6 +302,7 @@ p {
   background: var(--bg-card);
   backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
+  border-left: 4px solid var(--color-primary);
   border-radius: var(--border-radius-md);
   padding: 24px;
   display: flex;
@@ -311,10 +312,20 @@ p {
   box-shadow: var(--shadow-premium);
 }
 
+.stat-card:nth-of-type(1) {
+  border-left-color: #8A1525; /* Crimson for students */
+}
+.stat-card:nth-of-type(2) {
+  border-left-color: #1E223F; /* Navy for faculty */
+}
+.stat-card:nth-of-type(3) {
+  border-left-color: #C5B49F; /* Gold/Beige for batches */
+}
+
 .stat-card:hover {
   transform: translateY(-4px);
   border-color: var(--border-color-hover);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 28px rgba(30, 34, 63, 0.08);
 }
 
 .stat-icon-wrapper {
@@ -359,7 +370,8 @@ p {
 }
 
 .crm-card:hover {
-  border-color: rgba(124, 77, 255, 0.3);
+  border-color: rgba(74, 93, 120, 0.25);
+  box-shadow: 0 12px 28px rgba(30, 34, 63, 0.08);
 }
 
 .crm-card::before {
@@ -369,8 +381,8 @@ p {
   left: 0;
   width: 100%;
   height: 4px;
-  background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
-  opacity: 0.8;
+  background: linear-gradient(to right, #8A1525, #1E223F);
+  opacity: 0.85;
 }
 
 .crm-card-title {
@@ -403,20 +415,20 @@ p {
 }
 
 .chart-bar:hover {
-  fill: var(--color-secondary);
+  fill: #8A1525;
   opacity: 1;
-  filter: drop-shadow(0px 0px 8px var(--color-secondary-glow));
+  filter: drop-shadow(0px 0px 8px rgba(138, 21, 37, 0.2));
 }
 
 .chart-line {
   fill: none;
-  stroke: var(--color-secondary);
+  stroke: #8A1525;
   stroke-width: 3;
   stroke-linecap: round;
 }
 
 .chart-line-bg {
-  fill: url(#chart-gradient);
+  fill: url(#att-gradient);
   opacity: 0.15;
 }
 
