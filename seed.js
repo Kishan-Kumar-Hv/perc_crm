@@ -27,19 +27,17 @@ const teachers = [
     email: 'alok.verma@school.com',
     contact: '9876543210',
     subjects: ['Mathematics'],
-    assignedBatches: ['B-001'],
-    password: '9876543210' // Default password set to phone number
+    assignedBatches: ['B-CBSE10', 'B-ICSE10', 'B-CL9', 'B-CL8', 'B-CL67'],
+    password: '9876543210'
   }
 ];
 
 const batches = [
-  {
-    id: 'B-001',
-    name: 'CBSE - 10',
-    courseName: 'CBSE Class 10 Board Prep',
-    timing: '03:00 PM - 08:00 PM',
-    teacherId: 'T-2026-0001'
-  }
+  { id: 'B-CBSE10', name: 'CBSE - 10', courseName: 'CBSE Class 10 Board Prep', timing: '03:00 PM - 08:00 PM', teacherId: 'T-2026-0001' },
+  { id: 'B-ICSE10', name: 'ICSE - 10', courseName: 'ICSE Class 10 Board Prep', timing: '03:00 PM - 08:00 PM', teacherId: 'T-2026-0001' },
+  { id: 'B-CL9', name: 'Class 9', courseName: 'Class 9 Foundation Prep', timing: '03:00 PM - 08:00 PM', teacherId: 'T-2026-0001' },
+  { id: 'B-CL8', name: 'Class 8', courseName: 'Class 8 Foundation Prep', timing: '03:00 PM - 08:00 PM', teacherId: 'T-2026-0001' },
+  { id: 'B-CL67', name: 'Class 6-7', courseName: 'Junior Science Prep', timing: '03:00 PM - 08:00 PM', teacherId: 'T-2026-0001' }
 ];
 
 const getClassPrefix = (className) => {
@@ -53,11 +51,11 @@ const getClassPrefix = (className) => {
 };
 
 const rawStudents = [
-  { name: 'Joel', parentContact: '8668394644', parentName: 'Sundari S', parentEmail: 'sundariasha925@gmail.com', className: 'CBSE - 10', batchId: 'B-001', courseEnrolled: 'CBSE Class 10 Board Prep', totalFees: 6000, feesPaid: 6000, password: '8668394644' },
-  { name: 'Vaishnavi', parentContact: '9886458974', parentName: 'Dr. Aravind B', parentEmail: 'aravindbdnb@rediffmail.com', className: 'ICSE - 10', batchId: 'B-001', courseEnrolled: 'ICSE Class 10 Board Prep', totalFees: 6000, feesPaid: 6000, password: '9886458974' },
-  { name: 'Purochana', parentContact: '9845982410', parentName: 'Roopa A', parentEmail: 'roopaa2024@gmail.com', className: 'Class 9', batchId: 'B-001', courseEnrolled: 'Class 9 Foundation Prep', totalFees: 5500, feesPaid: 5500, password: '9845982410' },
-  { name: 'Thejas', parentContact: '9945505511', parentName: 'NA', parentEmail: 'NA', className: 'Class 8', batchId: 'B-001', courseEnrolled: 'Class 8 Foundation Prep', totalFees: 5000, feesPaid: 0, password: '9945505511' },
-  { name: 'Chirag', parentContact: '9945741087', parentName: 'Jayasheela B N', parentEmail: 'jayasheelab9@gmail.com', className: 'Class 6-7', batchId: 'B-001', courseEnrolled: 'Junior Science Prep', totalFees: 4500, feesPaid: 3500, password: '9945741087' }
+  { name: 'Joel', parentContact: '8668394644', parentName: 'Sundari S', parentEmail: 'sundariasha925@gmail.com', className: 'CBSE - 10', batchId: 'B-CBSE10', courseEnrolled: 'CBSE Class 10 Board Prep', totalFees: 6000, feesPaid: 6000, password: '8668394644' },
+  { name: 'Vaishnavi', parentContact: '9886458974', parentName: 'Dr. Aravind B', parentEmail: 'aravindbdnb@rediffmail.com', className: 'ICSE - 10', batchId: 'B-ICSE10', courseEnrolled: 'ICSE Class 10 Board Prep', totalFees: 6000, feesPaid: 6000, password: '9886458974' },
+  { name: 'Purochana', parentContact: '9845982410', parentName: 'Roopa A', parentEmail: 'roopaa2024@gmail.com', className: 'Class 9', batchId: 'B-CL9', courseEnrolled: 'Class 9 Foundation Prep', totalFees: 5500, feesPaid: 5500, password: '9845982410' },
+  { name: 'Thejas', parentContact: '9945505511', parentName: 'NA', parentEmail: 'NA', className: 'Class 8', batchId: 'B-CL8', courseEnrolled: 'Class 8 Foundation Prep', totalFees: 5000, feesPaid: 0, password: '9945505511' },
+  { name: 'Chirag', parentContact: '9945741087', parentName: 'Jayasheela B N', parentEmail: 'jayasheelab9@gmail.com', className: 'Class 6-7', batchId: 'B-CL67', courseEnrolled: 'Junior Science Prep', totalFees: 4500, feesPaid: 3500, password: '9945741087' }
 ];
 
 // Format students to match our registry pattern
@@ -90,14 +88,14 @@ const defaultAnnouncements = [
 ];
 
 const defaultAttendance = {
-  'B-001_2026-07-01': { 'CBSE10-2026-001': 'Present' }
+  'B-CBSE10_2026-07-01': { 'CBSE10-2026-001': 'Present' }
 };
 
 const defaultGrades = [
   {
     id: 'GR-3001',
     studentId: 'CBSE10-2026-001',
-    batchId: 'B-001',
+    batchId: 'B-CBSE10',
     subject: 'Mathematics',
     examName: 'Chapter 1: Matrices',
     score: 92,
@@ -120,7 +118,7 @@ const defaultObservations = [
 const defaultResources = [
   {
     id: 'RS-5001',
-    batchId: 'B-001',
+    batchId: 'B-CBSE10',
     title: 'Matrices Formula Sheet & Identity Properties',
     type: 'Study Material',
     description: 'Quick cheat-sheet containing determinant rules, matrix properties, and inversion methods.',

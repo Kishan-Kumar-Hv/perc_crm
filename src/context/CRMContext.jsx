@@ -12,7 +12,7 @@ const defaultStudents = [
     parentEmail: 'sundariasha925@gmail.com',
     className: 'CBSE - 10',
     courseEnrolled: 'CBSE Class 10 Board Prep',
-    batchId: 'B-001',
+    batchId: 'B-CBSE10',
     admissionDate: '2025-09-01',
     totalFees: 6000,
     feesPaid: 6000,
@@ -26,18 +26,16 @@ const defaultTeachers = [
     email: 'alok.verma@school.com',
     contact: '9876543210',
     subjects: ['Mathematics'],
-    assignedBatches: ['B-001'],
+    assignedBatches: ['B-CBSE10', 'B-ICSE10', 'B-CL9', 'B-CL8', 'B-CL67'],
     password: '9876543210'
   }
 ];
 const defaultBatches = [
-  {
-    id: 'B-001',
-    name: 'CBSE - 10',
-    courseName: 'CBSE Class 10 Board Prep',
-    timing: '03:00 PM - 08:00 PM',
-    teacherId: 'T-2026-0001'
-  }
+  { id: 'B-CBSE10', name: 'CBSE - 10', courseName: 'CBSE Class 10 Board Prep', timing: '03:00 PM - 08:00 PM', teacherId: 'T-2026-0001' },
+  { id: 'B-ICSE10', name: 'ICSE - 10', courseName: 'ICSE Class 10 Board Prep', timing: '03:00 PM - 08:00 PM', teacherId: 'T-2026-0001' },
+  { id: 'B-CL9', name: 'Class 9', courseName: 'Class 9 Foundation Prep', timing: '03:00 PM - 08:00 PM', teacherId: 'T-2026-0001' },
+  { id: 'B-CL8', name: 'Class 8', courseName: 'Class 8 Foundation Prep', timing: '03:00 PM - 08:00 PM', teacherId: 'T-2026-0001' },
+  { id: 'B-CL67', name: 'Class 6-7', courseName: 'Junior Science Prep', timing: '03:00 PM - 08:00 PM', teacherId: 'T-2026-0001' }
 ];
 
 const defaultAnnouncements = [
@@ -381,36 +379,7 @@ export const CRMProvider = ({ children }) => {
     return newRs;
   };
 
-  const resetDatabase = async () => {
-    try {
-      const res = await fetch('/api/crm-data/reset', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': 'perc_crm_secure_token_2026_xyz'
-        }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data) {
-          localStorage.clear();
-          setStudents(data.students || []);
-          setTeachers(data.teachers || []);
-          setBatches(data.batches || []);
-          setAnnouncements(data.announcements || []);
-          setAttendance(data.attendance || {});
-          setGrades(data.grades || []);
-          setObservations(data.observations || []);
-          setResources(data.resources || []);
-          showToast('Database reset to clean representative defaults!', 'success');
-        }
-      } else {
-        showToast('Failed to reset database.', 'error');
-      }
-    } catch (err) {
-      showToast('Error resetting database.', 'error');
-    }
-  };
+
 
   const [toast, setToast] = useState(null);
 
@@ -454,8 +423,7 @@ export const CRMProvider = ({ children }) => {
       saveGrade,
       addObservation,
       addResource,
-      showToast,
-      resetDatabase
+      showToast
     }}>
       {toast && (
         <div className={`toast-notification toast-${toast.type}`}>
