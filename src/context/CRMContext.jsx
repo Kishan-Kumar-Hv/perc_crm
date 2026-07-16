@@ -17,6 +17,62 @@ const defaultStudents = [
     totalFees: 6000,
     feesPaid: 6000,
     password: '8668394644'
+  },
+  {
+    id: 'ICSE10-2026-001',
+    name: 'Shivani',
+    parentName: 'Ambika',
+    parentContact: '6362790208',
+    parentEmail: 'NA',
+    className: 'ICSE - 10',
+    courseEnrolled: 'ICSE Class 10 Board Prep',
+    batchId: 'B-ICSE10',
+    admissionDate: '2025-09-01',
+    totalFees: 6000,
+    feesPaid: 3000,
+    password: '6362790208'
+  },
+  {
+    id: 'CL9-2026-001',
+    name: 'Rishabh',
+    parentName: 'Bhuvana Mane',
+    parentContact: '9972230647',
+    parentEmail: 'bhuna2707@gmail.com',
+    className: 'Class 9',
+    courseEnrolled: 'Class 9 Foundation Prep',
+    batchId: 'B-CL9',
+    admissionDate: '2025-09-01',
+    totalFees: 5500,
+    feesPaid: 5500,
+    password: '9972230647'
+  },
+  {
+    id: 'CL8-2026-001',
+    name: 'Revin',
+    parentName: 'Smrithi Jacob',
+    parentContact: '8105077994',
+    parentEmail: 'NA',
+    className: 'Class 8',
+    courseEnrolled: 'Class 8 Foundation Prep',
+    batchId: 'B-CL8',
+    admissionDate: '2025-09-01',
+    totalFees: 5000,
+    feesPaid: 0,
+    password: '8105077994'
+  },
+  {
+    id: 'CL67-2026-001',
+    name: 'Madhvik',
+    parentName: 'Prabhakar',
+    parentContact: '7090766040',
+    parentEmail: 'prabhakar.ramaswamy@gmail.com',
+    className: 'Class 6-7',
+    courseEnrolled: 'Junior Science Prep',
+    batchId: 'B-CL67',
+    admissionDate: '2025-09-01',
+    totalFees: 4500,
+    feesPaid: 4500,
+    password: '7090766040'
   }
 ];
 const defaultTeachers = [
@@ -88,80 +144,80 @@ export const CRMProvider = ({ children }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   const [students, setStudents] = useState(() => {
-    const val = localStorage.getItem('crm_v3_students');
+    const val = localStorage.getItem('crm_v4_students');
     return val ? JSON.parse(val) : defaultStudents;
   });
 
   const [teachers, setTeachers] = useState(() => {
-    const val = localStorage.getItem('crm_v3_teachers');
+    const val = localStorage.getItem('crm_v4_teachers');
     return val ? JSON.parse(val) : defaultTeachers;
   });
 
   const [batches, setBatches] = useState(() => {
-    const val = localStorage.getItem('crm_v3_batches');
+    const val = localStorage.getItem('crm_v4_batches');
     return val ? JSON.parse(val) : defaultBatches;
   });
 
 
 
   const [announcements, setAnnouncements] = useState(() => {
-    const val = localStorage.getItem('crm_v3_announcements');
+    const val = localStorage.getItem('crm_v4_announcements');
     return val ? JSON.parse(val) : defaultAnnouncements;
   });
 
   const [attendance, setAttendance] = useState(() => {
-    const val = localStorage.getItem('crm_v3_attendance');
+    const val = localStorage.getItem('crm_v4_attendance');
     return val ? JSON.parse(val) : defaultAttendance;
   });
 
   const [grades, setGrades] = useState(() => {
-    const val = localStorage.getItem('crm_v3_grades');
+    const val = localStorage.getItem('crm_v4_grades');
     return val ? JSON.parse(val) : defaultGrades;
   });
 
   const [observations, setObservations] = useState(() => {
-    const val = localStorage.getItem('crm_v3_observations');
+    const val = localStorage.getItem('crm_v4_observations');
     return val ? JSON.parse(val) : defaultObservations;
   });
 
   const [resources, setResources] = useState(() => {
-    const val = localStorage.getItem('crm_v3_resources');
+    const val = localStorage.getItem('crm_v4_resources');
     return val ? JSON.parse(val) : defaultResources;
   });
 
   // Sync with localStorage
   useEffect(() => {
-    localStorage.setItem('crm_v3_students', JSON.stringify(students));
+    localStorage.setItem('crm_v4_students', JSON.stringify(students));
   }, [students]);
 
   useEffect(() => {
-    localStorage.setItem('crm_v3_teachers', JSON.stringify(teachers));
+    localStorage.setItem('crm_v4_teachers', JSON.stringify(teachers));
   }, [teachers]);
 
   useEffect(() => {
-    localStorage.setItem('crm_v3_batches', JSON.stringify(batches));
+    localStorage.setItem('crm_v4_batches', JSON.stringify(batches));
   }, [batches]);
 
 
 
   useEffect(() => {
-    localStorage.setItem('crm_v3_announcements', JSON.stringify(announcements));
+    localStorage.setItem('crm_v4_announcements', JSON.stringify(announcements));
   }, [announcements]);
 
   useEffect(() => {
-    localStorage.setItem('crm_v3_attendance', JSON.stringify(attendance));
+    localStorage.setItem('crm_v4_attendance', JSON.stringify(attendance));
   }, [attendance]);
 
   useEffect(() => {
-    localStorage.setItem('crm_v3_grades', JSON.stringify(grades));
+    localStorage.setItem('crm_v4_grades', JSON.stringify(grades));
   }, [grades]);
 
   useEffect(() => {
-    localStorage.setItem('crm_v3_observations', JSON.stringify(observations));
+    localStorage.setItem('crm_v4_observations', JSON.stringify(observations));
   }, [observations]);
 
   useEffect(() => {
-    localStorage.setItem('crm_v3_resources', JSON.stringify(resources));
+    localStorage.setItem('crm_v4_resources', JSON.stringify(resources));
   }, [resources]);
 
   // Initial Load from MongoDB Atlas Express API
