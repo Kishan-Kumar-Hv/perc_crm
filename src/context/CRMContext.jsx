@@ -14,7 +14,8 @@ const defaultStudents = [
     courseEnrolled: 'CBSE Class 10 Board Prep',
     batchId: 'B-001',
     admissionDate: '2025-09-01',
-    feeStatus: 'Paid',
+    totalFees: 6000,
+    feesPaid: 6000,
     password: '8668394644'
   }
 ];
@@ -247,7 +248,13 @@ export const CRMProvider = ({ children }) => {
         })) + 1
       : 1;
     const formattedId = `${prefix}-2026-${String(nextIdNum).padStart(3, '0')}`;
-    const newStudent = { ...st, id: formattedId, admissionDate: new Date().toISOString().split('T')[0] };
+    const newStudent = { 
+      ...st, 
+      id: formattedId, 
+      admissionDate: new Date().toISOString().split('T')[0],
+      totalFees: parseInt(st.totalFees) || 6000,
+      feesPaid: parseInt(st.feesPaid) || 0
+    };
     setStudents(prev => [...prev, newStudent]);
     showToast('Student registered successfully!', 'success');
     return newStudent;

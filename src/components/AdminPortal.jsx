@@ -62,7 +62,7 @@ export default function AdminPortal({ onSignOut }) {
   const [studentForm, setStudentForm] = useState({
     name: '', parentName: '', parentContact: '', parentEmail: '',
     className: 'CBSE - 10', courseEnrolled: 'Advanced Mathematics',
-    batchId: '', feeStatus: 'Paid', password: ''
+    batchId: '', totalFees: 6000, feesPaid: 0, password: ''
   });
   const [teacherForm, setTeacherForm] = useState({
     name: '', email: '', contact: '', subjects: '', assignedBatches: [], password: ''
@@ -71,15 +71,19 @@ export default function AdminPortal({ onSignOut }) {
     type: 'Holiday', title: '', content: ''
   });
 
+  const [showPassModal, setShowPassModal] = useState(false);
+  const [passTarget, setPassTarget] = useState(null); // { type: 'student'|'teacher', data: object }
+  const [newPassVal, setNewPassVal] = useState('');
+
   // KPI Calculations
   const totalStudents = students.length;
   const totalTeachers = teachers.length;
   const totalBatches = batches.length;
   
   // Paid/Unpaid Stats
-  const paidCount = students.filter(s => s.feeStatus === 'Paid').length;
-  const partialCount = students.filter(s => s.feeStatus === 'Partial').length;
-  const overdueCount = students.filter(s => s.feeStatus === 'Overdue').length;
+  const paidCount = students.filter(s => (s.feesPaid || 0) >= (s.totalFees || 6000)).length;
+  const partialCount = students.filter(s => (s.feesPaid || 0) > 0 && (s.feesPaid || 0) < (s.totalFees || 6000)).length;
+  const overdueCount = students.filter(s => (s.feesPaid || 0) === 0).length;
 
   // Render SVG Demographic Chart
   const renderDemographicChart = () => {
@@ -323,12 +327,14 @@ export default function AdminPortal({ onSignOut }) {
     e.preventDefault();
     addStudent({
       ...studentForm,
-      password: studentForm.password.trim() || studentForm.parentContact.trim()
+      password: studentForm.password.trim() || studentForm.parentContact.trim(),
+      totalFees: parseInt(studentForm.totalFees) || 6000,
+      feesPaid: parseInt(studentForm.feesPaid) || 0
     });
     setStudentForm({
       name: '', parentName: '', parentContact: '', parentEmail: '',
       className: 'CBSE - 10', courseEnrolled: 'Advanced Mathematics',
-      batchId: '', feeStatus: 'Paid', password: ''
+      batchId: '', totalFees: 6000, feesPaid: 0, password: ''
     });
     setShowStudentModal(false);
   };
@@ -359,25 +365,20 @@ export default function AdminPortal({ onSignOut }) {
     setShowTeacherModal(false);
   };
 
+  const openPassModal = (type, data) => {
+    setPassTarget({ type, data });
+    setNewPassVal(data.password || (type === 'student' ? data.parentContact : data.contact));
+    setShowPassModal(true);
+  };
+
   const handleUpdateStudentPassword = (student) => {
-    const newPass = window.prompt(`Enter new login password/PIN for student ${student.name}:`, student.password || student.parentContact);
-    if (newPass !== null) {
-      updateStudent({
-        ...student,
-        password: newPass.trim()
-      });
-    }
+    openPassModal('student', student);
   };
 
   const handleUpdateTeacherPassword = (teacher) => {
-    const newPass = window.prompt(`Enter new login password for teacher ${teacher.name}:`, teacher.password || teacher.contact);
-    if (newPass !== null) {
-      updateTeacher({
-        ...teacher,
-        password: newPass.trim()
-      });
-    }
+    openPassModal('teacher', teacher);
   };
+
 
 
 
@@ -407,6 +408,17 @@ export default function AdminPortal({ onSignOut }) {
                           s.id.toLowerCase().includes(studentSearch.toLowerCase());
     const matchesBatch = studentFilterBatch ? s.batchId === studentFilterBatch : true;
     return matchesSearch && matchesBatch;
+  }).sort((a, b) => {
+    const statusA = (a.feesPaid || 0) === 0 ? 0 : ((a.feesPaid || 0) < (a.totalFees || 6000) ? 1 : 2);
+    const statusB = (b.feesPaid || 0) === 0 ? 0 : ((b.feesPaid || 0) < (b.totalFees || 6000) ? 1 : 2);
+    
+    if (statusA !== statusB) {
+      return statusA - statusB; // Unpaid (0) first, Partial (1) second, Paid (2) last
+    }
+    if (statusA === 1) {
+      return (a.feesPaid || 0) - (b.feesPaid || 0); // "Paid less" (lowest paid) on top
+    }
+    return 0;
   });
 
   return (
@@ -661,12 +673,17 @@ export default function AdminPortal({ onSignOut }) {
                             <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{student.parentContact}</div>
                           </td>
                           <td>
-                            <span className={`badge ${
-                              student.feeStatus === 'Paid' ? 'badge-success' : 
-                              student.feeStatus === 'Partial' ? 'badge-warning' : 'badge-danger'
-                            }`}>
-                              {student.feeStatus}
-                            </span>
+                            {(() => {
+                              const paid = student.feesPaid || 0;
+                              const total = student.totalFees || 6000;
+                              if (paid === 0) {
+                                return <span className="badge badge-danger">Unpaid ($0/${total})</span>;
+                              } else if (paid < total) {
+                                return <span className="badge badge-warning">Partial (${paid}/${total})</span>;
+                              } else {
+                                return <span className="badge badge-success">Paid (${paid}/${total})</span>;
+                              }
+                            })()}
                           </td>
                           <td>
                             <button 
@@ -742,13 +759,18 @@ export default function AdminPortal({ onSignOut }) {
                           <div className="accordion-detail-row">
                             <span className="accordion-detail-label">Fee Status</span>
                             <span className="accordion-detail-value">
-                              <span className={`badge ${
-                                student.feeStatus === 'Paid' ? 'badge-success' : 
-                                student.feeStatus === 'Partial' ? 'badge-warning' : 'badge-danger'
-                              }`}>
-                                {student.feeStatus}
-                              </span>
-                            </span>
+                             {(() => {
+                               const paid = student.feesPaid || 0;
+                               const total = student.totalFees || 6000;
+                               if (paid === 0) {
+                                 return <span className="badge badge-danger">Unpaid (${paid}/${total})</span>;
+                               } else if (paid < total) {
+                                 return <span className="badge badge-warning">Partial (${paid}/${total})</span>;
+                               } else {
+                                 return <span className="badge badge-success">Paid (${paid}/${total})</span>;
+                               }
+                             })()}
+                           </span>
                           </div>
                           <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                              <button 
@@ -1142,16 +1164,24 @@ export default function AdminPortal({ onSignOut }) {
                     </select>
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Fee Installment Status</label>
-                    <select 
-                      className="select-dropdown"
-                      value={studentForm.feeStatus}
-                      onChange={e => setStudentForm({ ...studentForm, feeStatus: e.target.value })}
-                    >
-                      <option>Paid</option>
-                      <option>Partial</option>
-                      <option>Overdue</option>
-                    </select>
+                    <label className="form-label">Total Course Fees ($)</label>
+                    <input 
+                      type="number" 
+                      required 
+                      className="form-input"
+                      value={studentForm.totalFees !== undefined ? studentForm.totalFees : 6000}
+                      onChange={e => setStudentForm({ ...studentForm, totalFees: parseInt(e.target.value) || 0 })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Fees Paid So Far ($)</label>
+                    <input 
+                      type="number" 
+                      required 
+                      className="form-input"
+                      value={studentForm.feesPaid !== undefined ? studentForm.feesPaid : 0}
+                      onChange={e => setStudentForm({ ...studentForm, feesPaid: parseInt(e.target.value) || 0 })}
+                    />
                   </div>
                 </div>
                 <div className="form-group" style={{ marginTop: '12px' }}>
@@ -1388,6 +1418,48 @@ export default function AdminPortal({ onSignOut }) {
                 </div>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Custom Password Update Modal */}
+      {showPassModal && passTarget && (
+        <div className="modal-overlay" onClick={() => setShowPassModal(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <div className="modal-header">
+              <h3 className="modal-title">Update Login Password</h3>
+              <button className="close-btn" onClick={() => setShowPassModal(false)}>&times;</button>
+            </div>
+            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                Set a custom password/PIN for <strong>{passTarget.data.name}</strong> ({passTarget.data.id}).
+              </p>
+              <div className="form-group">
+                <label className="form-label">New Password</label>
+                <input 
+                  type="password" 
+                  className="form-input" 
+                  value={newPassVal} 
+                  onChange={e => setNewPassVal(e.target.value)} 
+                  placeholder="Enter new password"
+                />
+              </div>
+              <div className="form-actions" style={{ marginTop: '8px' }}>
+                <button className="btn btn-secondary" onClick={() => setShowPassModal(false)}>Cancel</button>
+                <button 
+                  className="btn btn-primary" 
+                  onClick={() => {
+                    if (passTarget.type === 'student') {
+                      updateStudent({ ...passTarget.data, password: newPassVal.trim() });
+                    } else {
+                      updateTeacher({ ...passTarget.data, password: newPassVal.trim() });
+                    }
+                    setShowPassModal(false);
+                  }}
+                >
+                  Save Password
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

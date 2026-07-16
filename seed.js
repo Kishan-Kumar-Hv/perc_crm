@@ -43,11 +43,11 @@ const batches = [
 ];
 
 const rawStudents = [
-  { name: 'Joel', parentContact: '8668394644', parentName: 'Sundari S', parentEmail: 'sundariasha925@gmail.com', className: 'CBSE - 10', batchId: 'B-001', courseEnrolled: 'CBSE Class 10 Board Prep', feeStatus: 'Paid', password: '8668394644' },
-  { name: 'Vaishnavi', parentContact: '9886458974', parentName: 'Dr. Aravind B', parentEmail: 'aravindbdnb@rediffmail.com', className: 'CBSE - 10', batchId: 'B-001', courseEnrolled: 'CBSE Class 10 Board Prep', feeStatus: 'Paid', password: '9886458974' },
-  { name: 'Purochana', parentContact: '9845982410', parentName: 'Roopa A', parentEmail: 'roopaa2024@gmail.com', className: 'CBSE - 10', batchId: 'B-001', courseEnrolled: 'CBSE Class 10 Board Prep', feeStatus: 'Paid', password: '9845982410' },
-  { name: 'Thejas', parentContact: '9945505511', parentName: 'NA', parentEmail: 'NA', className: 'CBSE - 10', batchId: 'B-001', courseEnrolled: 'CBSE Class 10 Board Prep', feeStatus: 'Partial', password: '9945505511' },
-  { name: 'Chirag', parentContact: '9945741087', parentName: 'Jayasheela B N', parentEmail: 'jayasheelab9@gmail.com', className: 'CBSE - 10', batchId: 'B-001', courseEnrolled: 'CBSE Class 10 Board Prep', feeStatus: 'Paid', password: '9945741087' }
+  { name: 'Joel', parentContact: '8668394644', parentName: 'Sundari S', parentEmail: 'sundariasha925@gmail.com', className: 'CBSE - 10', batchId: 'B-001', courseEnrolled: 'CBSE Class 10 Board Prep', totalFees: 6000, feesPaid: 6000, password: '8668394644' },
+  { name: 'Vaishnavi', parentContact: '9886458974', parentName: 'Dr. Aravind B', parentEmail: 'aravindbdnb@rediffmail.com', className: 'CBSE - 10', batchId: 'B-001', courseEnrolled: 'CBSE Class 10 Board Prep', totalFees: 6000, feesPaid: 6000, password: '9886458974' },
+  { name: 'Purochana', parentContact: '9845982410', parentName: 'Roopa A', parentEmail: 'roopaa2024@gmail.com', className: 'CBSE - 10', batchId: 'B-001', courseEnrolled: 'CBSE Class 10 Board Prep', totalFees: 6000, feesPaid: 6000, password: '9845982410' },
+  { name: 'Thejas', parentContact: '9945505511', parentName: 'NA', parentEmail: 'NA', className: 'CBSE - 10', batchId: 'B-001', courseEnrolled: 'CBSE Class 10 Board Prep', totalFees: 6000, feesPaid: 0, password: '9945505511' },
+  { name: 'Chirag', parentContact: '9945741087', parentName: 'Jayasheela B N', parentEmail: 'jayasheelab9@gmail.com', className: 'CBSE - 10', batchId: 'B-001', courseEnrolled: 'CBSE Class 10 Board Prep', totalFees: 6000, feesPaid: 3500, password: '9945741087' }
 ];
 
 // Format students to match our registry pattern
@@ -62,7 +62,8 @@ const students = rawStudents.map((st, i) => {
     courseEnrolled: st.courseEnrolled,
     batchId: st.batchId,
     admissionDate: '2025-09-01',
-    feeStatus: st.feeStatus,
+    totalFees: st.totalFees,
+    feesPaid: st.feesPaid,
     password: st.password
   };
 });
