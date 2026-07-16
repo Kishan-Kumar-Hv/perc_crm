@@ -2077,8 +2077,8 @@ p {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background: rgba(30, 34, 63, 0.4);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -2087,6 +2087,8 @@ p {
   align-items: center;
   justify-content: center;
   padding: 20px;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 .login-modal-card {
@@ -2099,6 +2101,48 @@ p {
   box-shadow: var(--shadow-premium);
   position: relative;
   animation: modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Modal Login Role Selection Group */
+.login-role-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  background: rgba(30, 34, 63, 0.04);
+  border: 1px solid var(--border-color);
+  padding: 4px;
+  border-radius: var(--border-radius-sm);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.login-role-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 10px 8px;
+  font-size: 0.8rem;
+  font-family: var(--font-family);
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: var(--transition-smooth);
+}
+
+.login-role-btn.active {
+  background: var(--color-accent-red);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(138, 21, 37, 0.2);
+}
+
+.login-role-btn:hover:not(.active) {
+  color: var(--text-primary);
+  background: rgba(30, 34, 63, 0.06);
 }
 
 @keyframes modalSlideUp {
@@ -2336,14 +2380,39 @@ p {
 
 @media (max-width: 480px) {
   /* Secure Portal Login modal overlays */
+  .login-modal-backdrop {
+    align-items: flex-start;
+    padding: 16px 8px;
+  }
+
   .login-modal-card {
     padding: 24px 16px !important;
-    margin: 8px;
+    margin: 8px auto;
   }
   
   .btn {
     padding: 10px 16px;
     font-size: 0.85rem;
+  }
+
+  .login-role-group {
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px;
+    background: transparent;
+    border: none;
+  }
+
+  .login-role-btn {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    border: 1px solid var(--border-color);
+    justify-content: center;
+  }
+  
+  .login-role-btn.active {
+    border-color: var(--color-accent-red);
   }
 }
 

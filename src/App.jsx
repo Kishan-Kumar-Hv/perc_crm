@@ -599,25 +599,22 @@ function App() {
               </div>
 
               {/* Role Selection Tabs inside Modal */}
-              <div className="role-btn-group" style={{ marginBottom: '20px', display: 'flex', gap: '8px' }}>
+              <div className="login-role-group">
                 <button 
-                  className={`role-btn ${loginRole === 'admin' ? 'active' : ''}`}
+                  className={`login-role-btn ${loginRole === 'admin' ? 'active' : ''}`}
                   onClick={() => { setLoginRole('admin'); setLoginError(''); }}
-                  style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', fontSize: '0.8rem', padding: '8px' }}
                 >
                   <Shield size={12} /> Admin
                 </button>
                 <button 
-                  className={`role-btn ${loginRole === 'teacher' ? 'active' : ''}`}
+                  className={`login-role-btn ${loginRole === 'teacher' ? 'active' : ''}`}
                   onClick={() => { setLoginRole('teacher'); setLoginError(''); }}
-                  style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', fontSize: '0.8rem', padding: '8px' }}
                 >
                   <User size={12} /> Teacher
                 </button>
                 <button 
-                  className={`role-btn ${loginRole === 'parent' ? 'active' : ''}`}
+                  className={`login-role-btn ${loginRole === 'parent' ? 'active' : ''}`}
                   onClick={() => { setLoginRole('parent'); setLoginError(''); }}
-                  style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', fontSize: '0.8rem', padding: '8px' }}
                 >
                   <Users size={12} /> Student / Parent
                 </button>
