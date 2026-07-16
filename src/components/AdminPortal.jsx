@@ -782,6 +782,65 @@ export default function AdminPortal({ onSignOut }) {
                 </div>
               </div>
             </div>
+
+            {/* Individual Student Fee Ledger Table */}
+            <div className="crm-card" style={{ marginTop: '24px' }}>
+              <h3 className="crm-card-title">
+                <Users size={18} color="var(--color-primary)" />
+                Individual Student Fee Ledger
+              </h3>
+              <div className="table-responsive">
+                <table className="crm-table">
+                  <thead>
+                    <tr>
+                      <th>Student Details</th>
+                      <th>Class Grade</th>
+                      <th>Total Course Fees</th>
+                      <th>Fees Paid So Far</th>
+                      <th>Outstanding Balance</th>
+                      <th>Payment Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {students.length > 0 ? (
+                      students.map(student => {
+                        const paid = student.feesPaid || 0;
+                        const total = student.totalFees || 0;
+                        const balance = Math.max(0, total - paid);
+                        let statusBadge = <span className="badge badge-danger">Unpaid</span>;
+                        if (paid >= total && total > 0) {
+                          statusBadge = <span className="badge badge-success">Fully Paid</span>;
+                        } else if (paid > 0) {
+                          statusBadge = <span className="badge badge-warning">Partial</span>;
+                        }
+                        
+                        return (
+                          <tr key={student.id}>
+                            <td>
+                              <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{student.name}</div>
+                              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{student.id}</div>
+                            </td>
+                            <td>{student.className}</td>
+                            <td style={{ fontWeight: 600 }}>₹{total}</td>
+                            <td style={{ fontWeight: 600, color: 'var(--color-success)' }}>₹{paid}</td>
+                            <td style={{ fontWeight: 600, color: balance > 0 ? 'var(--color-danger)' : 'var(--text-muted)' }}>
+                              ₹{balance}
+                            </td>
+                            <td>{statusBadge}</td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan="6" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>
+                          No student ledger records found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </>
         )}
 
