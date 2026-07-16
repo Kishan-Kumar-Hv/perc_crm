@@ -167,7 +167,11 @@ export const CRMProvider = ({ children }) => {
   useEffect(() => {
     const fetchMongoData = async () => {
       try {
-        const res = await fetch('/api/crm-data');
+        const res = await fetch('/api/crm-data', {
+          headers: {
+            'x-api-key': 'perc_crm_secure_token_2026_xyz'
+          }
+        });
         if (res.ok) {
           const data = await res.json();
           if (data) {
@@ -199,7 +203,10 @@ export const CRMProvider = ({ children }) => {
       try {
         await fetch('/api/crm-data/sync', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-api-key': 'perc_crm_secure_token_2026_xyz'
+          },
           body: JSON.stringify({
             students, teachers, batches, announcements, attendance, grades, observations, resources
           })
@@ -216,11 +223,28 @@ export const CRMProvider = ({ children }) => {
   }, [isLoaded, students, teachers, batches, announcements, attendance, grades, observations, resources]);
 
   // Operations
+  const getClassPrefix = (className) => {
+    if (!className) return 'REG';
+    const normalized = className.toUpperCase().replace(/\s+/g, '');
+    if (normalized.includes('CBSE-10') || normalized.includes('CBSE10')) return 'CBSE10';
+    if (normalized.includes('ICSE-10') || normalized.includes('ICSE10')) return 'ICSE10';
+    if (normalized.includes('CLASS9') || normalized.includes('GRADE9')) return 'CL9';
+    if (normalized.includes('CLASS8') || normalized.includes('GRADE8')) return 'CL8';
+    if (normalized.includes('CLASS6-7') || normalized.includes('CLASS67')) return 'CL67';
+    return 'REG';
+  };
+
   const addStudent = (st) => {
-    const nextIdNum = students.length > 0 
-      ? Math.max(...students.map(s => parseInt(s.id.split('-')[2]))) + 1 
+    const prefix = getClassPrefix(st.className);
+    const classStudents = students.filter(s => s.id.startsWith(prefix));
+    const nextIdNum = classStudents.length > 0
+      ? Math.max(...classStudents.map(s => {
+          const parts = s.id.split('-');
+          const numPart = parts[parts.length - 1];
+          return parseInt(numPart) || 0;
+        })) + 1
       : 1;
-    const formattedId = `REG-2026-${String(nextIdNum).padStart(4, '0')}`;
+    const formattedId = `${prefix}-2026-${String(nextIdNum).padStart(3, '0')}`;
     const newStudent = { ...st, id: formattedId, admissionDate: new Date().toISOString().split('T')[0] };
     setStudents(prev => [...prev, newStudent]);
     showToast('Student registered successfully!', 'success');

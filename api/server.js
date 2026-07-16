@@ -37,10 +37,22 @@ const crmStateSchema = new mongoose.Schema({
 
 const CrmState = mongoose.model('CrmState', crmStateSchema);
 
+// --- API SECURITY MIDDLEWARE ---
+const API_KEY = process.env.API_KEY || 'perc_crm_secure_token_2026_xyz';
+
+const validateApiKey = (req, res, next) => {
+  const incomingKey = req.headers['x-api-key'];
+  if (!incomingKey || incomingKey !== API_KEY) {
+    console.warn(`Unauthorized access attempt from IP: ${req.ip}`);
+    return res.status(401).json({ error: 'Unauthorized: Invalid API security key.' });
+  }
+  next();
+};
+
 // --- API ROUTES ---
 
 // Fetch full CRM state (initializes a clean empty document if none exists)
-app.get('/api/crm-data', async (req, res) => {
+app.get('/api/crm-data', validateApiKey, async (req, res) => {
   try {
     let state = await CrmState.findOne();
     if (!state) {
@@ -63,8 +75,13 @@ app.get('/api/crm-data', async (req, res) => {
 });
 
 // Synchronize state with Mongo Atlas
-app.post('/api/crm-data/sync', async (req, res) => {
+app.post('/api/crm-data/sync', validateApiKey, async (req, res) => {
   try {
+    // Payload integrity checks (protect against NoSQL corruption/injection)
+    if (!req.body || typeof req.body !== 'object') {
+      return res.status(400).json({ error: 'Bad Request: Invalid body payload structure.' });
+    }
+
     const { students, teachers, batches, announcements, attendance, grades, observations, resources } = req.body;
     let state = await CrmState.findOne();
     

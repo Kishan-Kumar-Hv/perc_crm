@@ -191,8 +191,26 @@ const rawStudents = [
 ];
 
 // Format students to match our registry pattern
-const students = rawStudents.map((st, i) => {
-  const regId = `REG-2026-${String(i + 1).padStart(4, '0')}`;
+const getClassPrefix = (className) => {
+  if (!className) return 'REG';
+  const normalized = className.toUpperCase().replace(/\s+/g, '');
+  if (normalized.includes('CBSE-10') || normalized.includes('CBSE10')) return 'CBSE10';
+  if (normalized.includes('ICSE-10') || normalized.includes('ICSE10')) return 'ICSE10';
+  if (normalized.includes('CLASS9') || normalized.includes('GRADE9')) return 'CL9';
+  if (normalized.includes('CLASS8') || normalized.includes('GRADE8')) return 'CL8';
+  if (normalized.includes('CLASS6-7') || normalized.includes('CLASS67')) return 'CL67';
+  return 'REG';
+};
+
+const counters = {};
+const students = rawStudents.map((st) => {
+  const prefix = getClassPrefix(st.className);
+  if (!counters[prefix]) {
+    counters[prefix] = 1;
+  } else {
+    counters[prefix]++;
+  }
+  const regId = `${prefix}-2026-${String(counters[prefix]).padStart(3, '0')}`;
   return {
     id: regId,
     name: st.name,
@@ -218,13 +236,13 @@ const defaultAnnouncements = [
 ];
 
 const defaultAttendance = {
-  'B-001_2026-07-01': { 'REG-2026-0001': 'Present' }
+  'B-001_2026-07-01': { 'CBSE10-2026-001': 'Present' }
 };
 
 const defaultGrades = [
   {
     id: 'GR-3001',
-    studentId: 'REG-2026-0001',
+    studentId: 'CBSE10-2026-001',
     batchId: 'B-001',
     subject: 'Mathematics',
     examName: 'Chapter 1: Matrices',
@@ -238,7 +256,7 @@ const defaultGrades = [
 const defaultObservations = [
   {
     id: 'OB-4001',
-    studentId: 'REG-2026-0001',
+    studentId: 'CBSE10-2026-001',
     teacherName: 'Dr. Alok Verma',
     feedback: 'Joel is highly proactive in class discussions.',
     date: '2026-07-01'
