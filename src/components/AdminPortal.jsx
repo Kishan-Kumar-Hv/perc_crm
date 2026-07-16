@@ -62,10 +62,10 @@ export default function AdminPortal({ onSignOut }) {
   const [studentForm, setStudentForm] = useState({
     name: '', parentName: '', parentContact: '', parentEmail: '',
     className: 'Grade 10', courseEnrolled: 'Advanced Mathematics',
-    batchId: '', feeStatus: 'Paid'
+    batchId: '', feeStatus: 'Paid', password: ''
   });
   const [teacherForm, setTeacherForm] = useState({
-    name: '', email: '', contact: '', subjects: '', assignedBatches: []
+    name: '', email: '', contact: '', subjects: '', assignedBatches: [], password: ''
   });
   const [annForm, setAnnForm] = useState({
     type: 'Holiday', title: '', content: ''
@@ -321,11 +321,14 @@ export default function AdminPortal({ onSignOut }) {
   // Student Actions
   const handleStudentSubmit = (e) => {
     e.preventDefault();
-    addStudent(studentForm);
+    addStudent({
+      ...studentForm,
+      password: studentForm.password.trim() || studentForm.parentContact.trim()
+    });
     setStudentForm({
       name: '', parentName: '', parentContact: '', parentEmail: '',
       className: 'Grade 10', courseEnrolled: 'Advanced Mathematics',
-      batchId: '', feeStatus: 'Paid'
+      batchId: '', feeStatus: 'Paid', password: ''
     });
     setShowStudentModal(false);
   };
@@ -348,10 +351,11 @@ export default function AdminPortal({ onSignOut }) {
       email: teacherForm.email,
       contact: teacherForm.contact,
       subjects: subArray,
-      assignedBatches: teacherForm.assignedBatches
+      assignedBatches: teacherForm.assignedBatches,
+      password: teacherForm.password.trim() || teacherForm.contact.trim()
     });
 
-    setTeacherForm({ name: '', email: '', contact: '', subjects: '', assignedBatches: [] });
+    setTeacherForm({ name: '', email: '', contact: '', subjects: '', assignedBatches: [], password: '' });
     setShowTeacherModal(false);
   };
 
@@ -1098,6 +1102,16 @@ export default function AdminPortal({ onSignOut }) {
                     </select>
                   </div>
                 </div>
+                <div className="form-group" style={{ marginTop: '12px' }}>
+                  <label className="form-label">Login Password / Verification PIN</label>
+                  <input 
+                    type="password" 
+                    placeholder="Defaults to parent contact number if empty"
+                    className="form-input"
+                    value={studentForm.password || ''}
+                    onChange={e => setStudentForm({ ...studentForm, password: e.target.value })}
+                  />
+                </div>
                 <div className="form-actions">
                   <button type="button" className="btn btn-secondary" onClick={() => setShowStudentModal(false)}>Cancel</button>
                   <button type="submit" className="btn btn-primary">Complete Onboarding</button>
@@ -1180,6 +1194,16 @@ export default function AdminPortal({ onSignOut }) {
                       ))}
                     </div>
                   )}
+                </div>
+                <div className="form-group" style={{ marginTop: '12px' }}>
+                  <label className="form-label">Login Password</label>
+                  <input 
+                    type="password" 
+                    placeholder="Defaults to teacher contact number if empty"
+                    className="form-input"
+                    value={teacherForm.password || ''}
+                    onChange={e => setTeacherForm({ ...teacherForm, password: e.target.value })}
+                  />
                 </div>
                 <div className="form-actions">
                   <button type="button" className="btn btn-secondary" onClick={() => setShowTeacherModal(false)}>Cancel</button>

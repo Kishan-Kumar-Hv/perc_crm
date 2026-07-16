@@ -117,7 +117,7 @@ function App() {
   const handleModalLogin = () => {
     setLoginError('');
     if (loginRole === 'admin') {
-      if (adminEmail.trim() === 'admin@perc.edu' && adminPassword === 'admin123') {
+      if (adminEmail.trim() === 'admin@perc.edu' && adminPassword === 'PERC_Admin@2026!Secure') {
         setCurrentPortal('admin');
         closeModal();
       } else {
@@ -125,19 +125,25 @@ function App() {
       }
     } else if (loginRole === 'teacher') {
       const selectedTeacher = teachers.find(t => t.id === loginTeacherId);
-      if (selectedTeacher && teacherPassword.trim() === selectedTeacher.contact.trim()) {
+      const expectedPassword = selectedTeacher && selectedTeacher.password 
+        ? selectedTeacher.password.trim() 
+        : (selectedTeacher ? selectedTeacher.contact.trim() : '');
+      if (selectedTeacher && teacherPassword.trim() === expectedPassword) {
         enterTeacherPortal(loginTeacherId);
         closeModal();
       } else {
-        setLoginError('Invalid Faculty credentials (registered phone number required).');
+        setLoginError('Invalid Faculty credentials.');
       }
     } else if (loginRole === 'parent') {
       const selectedStudent = students.find(s => s.id === loginStudentId);
-      if (selectedStudent && parentPin.trim() === selectedStudent.parentContact.trim()) {
+      const expectedPin = selectedStudent && selectedStudent.password 
+        ? selectedStudent.password.trim() 
+        : (selectedStudent ? selectedStudent.parentContact.trim() : '');
+      if (selectedStudent && parentPin.trim() === expectedPin) {
         enterParentPortal(loginStudentId);
         closeModal();
       } else {
-        setLoginError('Invalid Verification PIN (registered parent phone number required).');
+        setLoginError('Invalid Verification PIN.');
       }
     }
   };

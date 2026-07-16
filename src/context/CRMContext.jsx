@@ -5,7 +5,7 @@ export const CRMContext = createContext();
 
 const defaultStudents = [
   {
-    id: 'REG-2026-0001',
+    id: 'CBSE10-2026-001',
     name: 'Joel',
     parentName: 'Sundari S',
     parentContact: '8668394644',
@@ -14,7 +14,8 @@ const defaultStudents = [
     courseEnrolled: 'CBSE Class 10 Board Prep',
     batchId: 'B-001',
     admissionDate: '2025-09-01',
-    feeStatus: 'Paid'
+    feeStatus: 'Paid',
+    password: '8668394644'
   }
 ];
 const defaultTeachers = [
@@ -24,7 +25,8 @@ const defaultTeachers = [
     email: 'alok.verma@school.com',
     contact: '9876543210',
     subjects: ['Mathematics'],
-    assignedBatches: ['B-001']
+    assignedBatches: ['B-001'],
+    password: '9876543210'
   }
 ];
 const defaultBatches = [
