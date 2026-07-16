@@ -1457,6 +1457,7 @@ export default function AdminPortal({ onSignOut }) {
                       value={studentForm.totalFees}
                       onChange={e => setStudentForm({ ...studentForm, totalFees: e.target.value })}
                       placeholder="e.g. 6000"
+                      onWheel={(e) => e.target.blur()}
                     />
                   </div>
                   <div className="form-group">
@@ -1468,6 +1469,7 @@ export default function AdminPortal({ onSignOut }) {
                       value={studentForm.feesPaid}
                       onChange={e => setStudentForm({ ...studentForm, feesPaid: e.target.value })}
                       placeholder="e.g. 3500"
+                      onWheel={(e) => e.target.blur()}
                     />
                   </div>
                 </div>
@@ -1809,6 +1811,7 @@ export default function AdminPortal({ onSignOut }) {
                       className="form-input"
                       value={editStudentForm.totalFees}
                       onChange={e => setEditStudentForm({ ...editStudentForm, totalFees: e.target.value })}
+                      onWheel={(e) => e.target.blur()}
                     />
                   </div>
                   <div className="form-group">
@@ -1819,6 +1822,7 @@ export default function AdminPortal({ onSignOut }) {
                       className="form-input"
                       value={editStudentForm.feesPaid}
                       onChange={e => setEditStudentForm({ ...editStudentForm, feesPaid: e.target.value })}
+                      onWheel={(e) => e.target.blur()}
                     />
                   </div>
                 </div>
