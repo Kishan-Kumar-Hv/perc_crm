@@ -321,6 +321,9 @@ p {
 .stat-card:nth-of-type(3) {
   border-left-color: #C5B49F; /* Gold/Beige for batches */
 }
+.stat-card:nth-of-type(4) {
+  border-left-color: #10B981; /* Green for collections */
+}
 
 .stat-card:hover {
   transform: translateY(-4px);

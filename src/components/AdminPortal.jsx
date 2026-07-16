@@ -101,6 +101,10 @@ export default function AdminPortal({ onSignOut }) {
   const partialCount = students.filter(s => (s.feesPaid || 0) > 0 && (s.feesPaid || 0) < (s.totalFees || 6000)).length;
   const overdueCount = students.filter(s => (s.feesPaid || 0) === 0).length;
 
+  const totalExpectedFees = students.reduce((sum, s) => sum + (s.totalFees || 0), 0);
+  const totalCollectedFees = students.reduce((sum, s) => sum + (s.feesPaid || 0), 0);
+  const totalOutstandingFees = Math.max(0, totalExpectedFees - totalCollectedFees);
+
   // Render SVG Demographic Chart
   const renderDemographicChart = () => {
     const counts = { 'CBSE - 10': 0, 'ICSE - 10': 0, 'Class 9': 0, 'Class 8': 0, 'Class 6-7': 0 };
@@ -697,7 +701,15 @@ export default function AdminPortal({ onSignOut }) {
                   <span className="stat-label">Active Batches</span>
                 </div>
               </div>
-
+              <div className="stat-card">
+                <div className="stat-icon-wrapper" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}>
+                  <DollarSign size={24} />
+                </div>
+                <div className="stat-info">
+                  <span className="stat-value">₹{totalCollectedFees}</span>
+                  <span className="stat-label">Collected Fees</span>
+                </div>
+              </div>
             </div>
 
             <div className="graphs-grid">
@@ -724,26 +736,49 @@ export default function AdminPortal({ onSignOut }) {
             <div className="crm-card">
               <h3 className="crm-card-title">
                 <DollarSign size={18} color="var(--color-success)" />
-                Fee Payment Collections
+                Fee Payment Collections & Financial Ledger
               </h3>
-              <div className="profile-meta-grid">
-                <div className="profile-meta-item">
-                  <span className="profile-meta-label">Cleared Accounts</span>
-                  <span className="profile-meta-val badge badge-success">{paidCount} Students</span>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '28px' }}>
+                <div className="profile-meta-grid" style={{ marginTop: '0' }}>
+                  <div className="profile-meta-item">
+                    <span className="profile-meta-label">Cleared Accounts</span>
+                    <span className="profile-meta-val badge badge-success">{paidCount} Students</span>
+                  </div>
+                  <div className="profile-meta-item">
+                    <span className="profile-meta-label">Partial Remittances</span>
+                    <span className="profile-meta-val badge badge-warning">{partialCount} Students</span>
+                  </div>
+                  <div className="profile-meta-item">
+                    <span className="profile-meta-label">Outstanding Invoices</span>
+                    <span className="profile-meta-val badge badge-danger">{overdueCount} Students</span>
+                  </div>
+                  <div className="profile-meta-item">
+                    <span className="profile-meta-label">Account Cleared Rate</span>
+                    <span className="profile-meta-val" style={{ color: 'var(--color-secondary)', fontWeight: 700 }}>
+                      {((paidCount + (partialCount * 0.5)) / (totalStudents || 1) * 100).toFixed(1)}%
+                    </span>
+                  </div>
                 </div>
-                <div className="profile-meta-item">
-                  <span className="profile-meta-label">Partial Remittances</span>
-                  <span className="profile-meta-val badge badge-warning">{partialCount} Students</span>
-                </div>
-                <div className="profile-meta-item">
-                  <span className="profile-meta-label">Outstanding Invoices</span>
-                  <span className="profile-meta-val badge badge-danger">{overdueCount} Students</span>
-                </div>
-                <div className="profile-meta-item">
-                  <span className="profile-meta-label">Collection Rate</span>
-                  <span className="profile-meta-val" style={{ color: 'var(--color-secondary)', fontWeight: 700 }}>
-                    {((paidCount + (partialCount * 0.5)) / totalStudents * 100 || 0).toFixed(1)}%
-                  </span>
+                
+                <div className="profile-meta-grid" style={{ marginTop: '0', borderLeft: '1px solid var(--border-color)', paddingLeft: '24px' }}>
+                  <div className="profile-meta-item">
+                    <span className="profile-meta-label">Total Expected Fees</span>
+                    <span className="profile-meta-val" style={{ fontWeight: '700', color: 'var(--text-primary)' }}>₹{totalExpectedFees}</span>
+                  </div>
+                  <div className="profile-meta-item">
+                    <span className="profile-meta-label">Total Fees Collected</span>
+                    <span className="profile-meta-val" style={{ fontWeight: '700', color: 'var(--color-success)' }}>₹{totalCollectedFees}</span>
+                  </div>
+                  <div className="profile-meta-item">
+                    <span className="profile-meta-label">Total Outstanding Dues</span>
+                    <span className="profile-meta-val" style={{ fontWeight: '700', color: 'var(--color-danger)' }}>₹{totalOutstandingFees}</span>
+                  </div>
+                  <div className="profile-meta-item">
+                    <span className="profile-meta-label">Dues Collection Efficiency</span>
+                    <span className="profile-meta-val" style={{ color: 'var(--color-success)', fontWeight: 700 }}>
+                      {((totalCollectedFees / (totalExpectedFees || 1)) * 100).toFixed(1)}%
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
