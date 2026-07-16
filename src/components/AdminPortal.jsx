@@ -97,8 +97,16 @@ export default function AdminPortal({ onSignOut }) {
   const totalBatches = batches.length;
   
   // Paid/Unpaid Stats
-  const paidCount = students.filter(s => (s.feesPaid || 0) >= (s.totalFees || 6000)).length;
-  const partialCount = students.filter(s => (s.feesPaid || 0) > 0 && (s.feesPaid || 0) < (s.totalFees || 6000)).length;
+  const paidCount = students.filter(s => {
+    const total = s.totalFees !== undefined ? s.totalFees : 0;
+    const paid = s.feesPaid !== undefined ? s.feesPaid : 0;
+    return total > 0 ? paid >= total : paid > 0;
+  }).length;
+  const partialCount = students.filter(s => {
+    const total = s.totalFees !== undefined ? s.totalFees : 0;
+    const paid = s.feesPaid !== undefined ? s.feesPaid : 0;
+    return total > 0 && paid > 0 && paid < total;
+  }).length;
   const overdueCount = students.filter(s => (s.feesPaid || 0) === 0).length;
 
   const totalExpectedFees = students.reduce((sum, s) => sum + (s.totalFees || 0), 0);
@@ -551,8 +559,10 @@ export default function AdminPortal({ onSignOut }) {
     const matchesBatch = studentFilterBatch ? s.batchId === studentFilterBatch : true;
     return matchesSearch && matchesBatch;
   }).sort((a, b) => {
-    const statusA = (a.feesPaid || 0) === 0 ? 0 : ((a.feesPaid || 0) < (a.totalFees || 6000) ? 1 : 2);
-    const statusB = (b.feesPaid || 0) === 0 ? 0 : ((b.feesPaid || 0) < (b.totalFees || 6000) ? 1 : 2);
+    const totalA = a.totalFees !== undefined ? a.totalFees : 0;
+    const totalB = b.totalFees !== undefined ? b.totalFees : 0;
+    const statusA = (a.feesPaid || 0) === 0 ? 0 : ((a.feesPaid || 0) < totalA ? 1 : 2);
+    const statusB = (b.feesPaid || 0) === 0 ? 0 : ((b.feesPaid || 0) < totalB ? 1 : 2);
     
     if (statusA !== statusB) {
       return statusA - statusB; // Unpaid (0) first, Partial (1) second, Paid (2) last
@@ -906,13 +916,13 @@ export default function AdminPortal({ onSignOut }) {
                           <td>
                             {(() => {
                               const paid = student.feesPaid || 0;
-                              const total = student.totalFees || 6000;
+                              const total = student.totalFees !== undefined ? student.totalFees : 0;
                               if (paid === 0) {
-                                return <span className="badge badge-danger">Unpaid ($0/${total})</span>;
+                                return <span className="badge badge-danger">Unpaid (₹0/₹{total})</span>;
                               } else if (paid < total) {
-                                return <span className="badge badge-warning">Partial (${paid}/${total})</span>;
+                                return <span className="badge badge-warning">Partial (₹{paid}/₹{total})</span>;
                               } else {
-                                return <span className="badge badge-success">Paid (${paid}/${total})</span>;
+                                return <span className="badge badge-success">Paid (₹{paid}/₹{total})</span>;
                               }
                             })()}
                           </td>
@@ -1000,13 +1010,13 @@ export default function AdminPortal({ onSignOut }) {
                             <span className="accordion-detail-value">
                              {(() => {
                                const paid = student.feesPaid || 0;
-                               const total = student.totalFees || 6000;
+                               const total = student.totalFees !== undefined ? student.totalFees : 0;
                                if (paid === 0) {
-                                 return <span className="badge badge-danger">Unpaid (${paid}/${total})</span>;
+                                 return <span className="badge badge-danger">Unpaid (₹{paid}/₹{total})</span>;
                                } else if (paid < total) {
-                                 return <span className="badge badge-warning">Partial (${paid}/${total})</span>;
+                                 return <span className="badge badge-warning">Partial (₹{paid}/₹{total})</span>;
                                } else {
-                                 return <span className="badge badge-success">Paid (${paid}/${total})</span>;
+                                 return <span className="badge badge-success">Paid (₹{paid}/₹{total})</span>;
                                }
                              })()}
                            </span>
@@ -1439,7 +1449,7 @@ export default function AdminPortal({ onSignOut }) {
                     </select>
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Total Course Fees ($)</label>
+                    <label className="form-label">Total Course Fees (₹)</label>
                     <input 
                       type="number" 
                       required 
@@ -1450,7 +1460,7 @@ export default function AdminPortal({ onSignOut }) {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Fees Paid So Far ($)</label>
+                    <label className="form-label">Fees Paid So Far (₹)</label>
                     <input 
                       type="number" 
                       required 
@@ -1792,7 +1802,7 @@ export default function AdminPortal({ onSignOut }) {
                     </select>
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Total Course Fees ($)</label>
+                    <label className="form-label">Total Course Fees (₹)</label>
                     <input 
                       type="number" 
                       required 
@@ -1802,7 +1812,7 @@ export default function AdminPortal({ onSignOut }) {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Fees Paid So Far ($)</label>
+                    <label className="form-label">Fees Paid So Far (₹)</label>
                     <input 
                       type="number" 
                       required 
