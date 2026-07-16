@@ -21,12 +21,12 @@
   --color-accent-beige: #C5B49F;
   --color-accent-beige-light: #E4DCD3;
   
-  --color-success: #10B981;
-  --color-success-bg: rgba(16, 185, 129, 0.1);
-  --color-warning: #F59E0B;
-  --color-warning-bg: rgba(245, 158, 11, 0.1);
-  --color-danger: #EF4444;
-  --color-danger-bg: rgba(239, 68, 68, 0.1);
+  --color-success: #0ca678;
+  --color-success-bg: #e6fcf5;
+  --color-warning: #f59f00;
+  --color-warning-bg: #fff9db;
+  --color-danger: #ff6b6b;
+  --color-danger-bg: #fff5f5;
   --color-info: #3B82F6;
   --color-info-bg: rgba(59, 130, 246, 0.1);
 
@@ -759,32 +759,36 @@ p {
 /* Badges */
 .badge {
   display: inline-flex;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 .badge-success {
   background: var(--color-success-bg);
   color: var(--color-success);
+  border: 1px solid rgba(12, 166, 120, 0.2);
 }
 
 .badge-warning {
   background: var(--color-warning-bg);
   color: var(--color-warning);
+  border: 1px solid rgba(245, 159, 0, 0.2);
 }
 
 .badge-danger {
   background: var(--color-danger-bg);
   color: var(--color-danger);
+  border: 1px solid rgba(255, 107, 107, 0.2);
 }
 
 .badge-info {
   background: var(--color-info-bg);
   color: var(--color-info);
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 /* Notifications Feed */

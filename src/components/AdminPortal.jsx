@@ -3,7 +3,7 @@ import { CRMContext } from '../context/CRMContext';
 import { 
   Users, UserCheck, LayoutDashboard, Bookmark, Bell, Plus, Trash2, 
   Search, TrendingUp, DollarSign, Calendar, Sliders, ChevronRight, ChevronLeft, ArrowRightLeft,
-  LogOut, Menu, X, BookOpen, ChevronDown, ChevronUp, Key
+  LogOut, Menu, X, BookOpen, ChevronDown, ChevronUp, Key, RefreshCw
 } from 'lucide-react';
 import PERCLogo from './PERCLogo';
 
@@ -13,7 +13,7 @@ export default function AdminPortal({ onSignOut }) {
     addStudent, updateStudent, deleteStudent, 
     addTeacher, updateTeacher, deleteTeacher, 
     addAnnouncement, deleteAnnouncement,
-    addBatch, deleteBatch
+    addBatch, deleteBatch, resetDatabase
   } = useContext(CRMContext);
 
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -441,6 +441,18 @@ export default function AdminPortal({ onSignOut }) {
               <span className="active-dot"></span>
             </div>
           </div>
+
+          <button 
+            className="btn btn-secondary" 
+            style={{ borderColor: 'var(--color-warning)', color: 'var(--color-warning)', background: 'transparent' }}
+            onClick={() => {
+              if (window.confirm("Are you sure you want to clean everything and reset the database back to default representative class values? This will wipe all changes.")) {
+                resetDatabase();
+              }
+            }}
+          >
+            <RefreshCw size={16} /> <span className="hide-on-mobile">Clean Database</span>
+          </button>
 
           <button className="btn btn-secondary" onClick={onSignOut}>
             <LogOut size={16} /> <span className="hide-on-mobile">Sign Out</span>

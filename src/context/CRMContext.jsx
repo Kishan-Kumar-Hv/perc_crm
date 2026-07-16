@@ -381,6 +381,37 @@ export const CRMProvider = ({ children }) => {
     return newRs;
   };
 
+  const resetDatabase = async () => {
+    try {
+      const res = await fetch('/api/crm-data/reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': 'perc_crm_secure_token_2026_xyz'
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data) {
+          localStorage.clear();
+          setStudents(data.students || []);
+          setTeachers(data.teachers || []);
+          setBatches(data.batches || []);
+          setAnnouncements(data.announcements || []);
+          setAttendance(data.attendance || {});
+          setGrades(data.grades || []);
+          setObservations(data.observations || []);
+          setResources(data.resources || []);
+          showToast('Database reset to clean representative defaults!', 'success');
+        }
+      } else {
+        showToast('Failed to reset database.', 'error');
+      }
+    } catch (err) {
+      showToast('Error resetting database.', 'error');
+    }
+  };
+
   const [toast, setToast] = useState(null);
 
   const showToast = (message, type = 'success') => {
@@ -423,7 +454,8 @@ export const CRMProvider = ({ children }) => {
       saveGrade,
       addObservation,
       addResource,
-      showToast
+      showToast,
+      resetDatabase
     }}>
       {toast && (
         <div className={`toast-notification toast-${toast.type}`}>
