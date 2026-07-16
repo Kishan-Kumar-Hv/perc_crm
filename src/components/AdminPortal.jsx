@@ -3,7 +3,7 @@ import { CRMContext } from '../context/CRMContext';
 import { 
   Users, UserCheck, LayoutDashboard, Bookmark, Bell, Plus, Trash2, 
   Search, TrendingUp, DollarSign, Calendar, Sliders, ChevronRight, ChevronLeft, ArrowRightLeft,
-  LogOut, Menu, X, BookOpen, ChevronDown, ChevronUp
+  LogOut, Menu, X, BookOpen, ChevronDown, ChevronUp, Key
 } from 'lucide-react';
 import PERCLogo from './PERCLogo';
 
@@ -11,7 +11,7 @@ export default function AdminPortal({ onSignOut }) {
   const { 
     students, teachers, batches, announcements, 
     addStudent, updateStudent, deleteStudent, 
-    addTeacher, deleteTeacher, 
+    addTeacher, updateTeacher, deleteTeacher, 
     addAnnouncement, deleteAnnouncement,
     addBatch, deleteBatch
   } = useContext(CRMContext);
@@ -61,7 +61,7 @@ export default function AdminPortal({ onSignOut }) {
   });
   const [studentForm, setStudentForm] = useState({
     name: '', parentName: '', parentContact: '', parentEmail: '',
-    className: 'Grade 10', courseEnrolled: 'Advanced Mathematics',
+    className: 'CBSE - 10', courseEnrolled: 'Advanced Mathematics',
     batchId: '', feeStatus: 'Paid', password: ''
   });
   const [teacherForm, setTeacherForm] = useState({
@@ -83,7 +83,7 @@ export default function AdminPortal({ onSignOut }) {
 
   // Render SVG Demographic Chart
   const renderDemographicChart = () => {
-    const counts = { 'Grade 10': 0, 'Grade 11': 0, 'Grade 12': 0 };
+    const counts = { 'CBSE - 10': 0, 'ICSE - 10': 0, 'Class 9': 0, 'Class 8': 0, 'Class 6-7': 0 };
     students.forEach(s => {
       if (counts[s.className] !== undefined) {
         counts[s.className]++;
@@ -327,7 +327,7 @@ export default function AdminPortal({ onSignOut }) {
     });
     setStudentForm({
       name: '', parentName: '', parentContact: '', parentEmail: '',
-      className: 'Grade 10', courseEnrolled: 'Advanced Mathematics',
+      className: 'CBSE - 10', courseEnrolled: 'Advanced Mathematics',
       batchId: '', feeStatus: 'Paid', password: ''
     });
     setShowStudentModal(false);
@@ -357,6 +357,26 @@ export default function AdminPortal({ onSignOut }) {
 
     setTeacherForm({ name: '', email: '', contact: '', subjects: '', assignedBatches: [], password: '' });
     setShowTeacherModal(false);
+  };
+
+  const handleUpdateStudentPassword = (student) => {
+    const newPass = window.prompt(`Enter new login password/PIN for student ${student.name}:`, student.password || student.parentContact);
+    if (newPass !== null) {
+      updateStudent({
+        ...student,
+        password: newPass.trim()
+      });
+    }
+  };
+
+  const handleUpdateTeacherPassword = (teacher) => {
+    const newPass = window.prompt(`Enter new login password for teacher ${teacher.name}:`, teacher.password || teacher.contact);
+    if (newPass !== null) {
+      updateTeacher({
+        ...teacher,
+        password: newPass.trim()
+      });
+    }
   };
 
 
@@ -651,6 +671,14 @@ export default function AdminPortal({ onSignOut }) {
                           <td>
                             <button 
                               className="lead-action-btn"
+                              style={{ color: 'var(--color-warning, #f59e0b)', marginRight: '8px' }}
+                              onClick={() => handleUpdateStudentPassword(student)}
+                              title="Change Password"
+                            >
+                              <Key size={16} />
+                            </button>
+                            <button 
+                              className="lead-action-btn"
                               style={{ color: 'var(--color-danger)' }}
                               onClick={() => deleteStudent(student.id)}
                             >
@@ -722,15 +750,22 @@ export default function AdminPortal({ onSignOut }) {
                               </span>
                             </span>
                           </div>
-                          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
-                            <button 
-                              className="btn btn-danger" 
-                              style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
-                              onClick={(e) => { e.stopPropagation(); deleteStudent(student.id); }}
-                            >
-                              <Trash2 size={12} /> Delete Student
-                            </button>
-                          </div>
+                          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                             <button 
+                               className="btn btn-secondary" 
+                               style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--color-warning, #f59e0b)', color: '#fff', border: 'none' }}
+                               onClick={(e) => { e.stopPropagation(); handleUpdateStudentPassword(student); }}
+                             >
+                               <Key size={12} /> Change Password
+                             </button>
+                             <button 
+                               className="btn btn-danger" 
+                               style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                               onClick={(e) => { e.stopPropagation(); deleteStudent(student.id); }}
+                             >
+                               <Trash2 size={12} /> Delete Student
+                             </button>
+                           </div>
                         </div>
                       )}
                     </div>
@@ -784,6 +819,14 @@ export default function AdminPortal({ onSignOut }) {
                         })()}
                       </td>
                       <td>
+                        <button 
+                          className="lead-action-btn"
+                          style={{ color: 'var(--color-warning, #f59e0b)', marginRight: '8px' }}
+                          onClick={() => handleUpdateTeacherPassword(t)}
+                          title="Change Password"
+                        >
+                          <Key size={16} />
+                        </button>
                         <button 
                           className="lead-action-btn"
                           style={{ color: 'var(--color-danger)' }}
@@ -840,15 +883,22 @@ export default function AdminPortal({ onSignOut }) {
                               {teacherBatches.map(b => b.name).join(', ') || 'None'}
                             </span>
                           </div>
-                          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
-                            <button 
-                              className="btn btn-danger" 
-                              style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
-                              onClick={(e) => { e.stopPropagation(); deleteTeacher(teacher.id); }}
-                            >
-                              <Trash2 size={12} /> Delete Faculty
-                            </button>
-                          </div>
+                          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                             <button 
+                               className="btn btn-secondary" 
+                               style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--color-warning, #f59e0b)', color: '#fff', border: 'none' }}
+                               onClick={(e) => { e.stopPropagation(); handleUpdateTeacherPassword(teacher); }}
+                             >
+                               <Key size={12} /> Change Password
+                             </button>
+                             <button 
+                               className="btn btn-danger" 
+                               style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                               onClick={(e) => { e.stopPropagation(); deleteTeacher(teacher.id); }}
+                             >
+                               <Trash2 size={12} /> Delete Faculty
+                             </button>
+                           </div>
                         </div>
                       )}
                     </div>
@@ -1059,9 +1109,11 @@ export default function AdminPortal({ onSignOut }) {
                       value={studentForm.className}
                       onChange={e => setStudentForm({ ...studentForm, className: e.target.value })}
                     >
-                      <option>Grade 10</option>
-                      <option>Grade 11</option>
-                      <option>Grade 12</option>
+                      <option>CBSE - 10</option>
+                      <option>ICSE - 10</option>
+                      <option>Class 9</option>
+                      <option>Class 8</option>
+                      <option>Class 6-7</option>
                     </select>
                   </div>
                   <div className="form-group">
