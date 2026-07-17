@@ -90,6 +90,10 @@ export default function AdminPortal({ onSignOut }) {
   const [showPassModal, setShowPassModal] = useState(false);
   const [passTarget, setPassTarget] = useState(null); // { type: 'student'|'teacher', data: object }
   const [newPassVal, setNewPassVal] = useState('');
+  const [selectedFeeStudentId, setSelectedFeeStudentId] = useState('');
+
+  // Find selected student for Fee Ledger (defaults to first student if none selected/found)
+  const selectedStudent = students.find(s => s.id === selectedFeeStudentId) || (students.length > 0 ? students[0] : null);
 
   // KPI Calculations
   const totalStudents = students.length;
@@ -793,63 +797,170 @@ export default function AdminPortal({ onSignOut }) {
               </div>
             </div>
 
-            {/* Individual Student Fee Ledger Table */}
+            {/* Individual Student Fee Ledger */}
             <div className="crm-card" style={{ marginTop: '24px' }}>
               <h3 className="crm-card-title">
                 <Users size={18} color="var(--color-primary)" />
                 Individual Student Fee Ledger
               </h3>
-              <div className="table-responsive">
-                <table className="crm-table">
-                  <thead>
-                    <tr>
-                      <th>Student Details</th>
-                      <th>Class Grade</th>
-                      <th>Total Course Fees</th>
-                      <th>Fees Paid So Far</th>
-                      <th>Outstanding Balance</th>
-                      <th>Payment Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+              
+              <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label htmlFor="feeStudentSelect" style={{ fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                  Select Student to View Fee Details:
+                </label>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <select 
+                    id="feeStudentSelect"
+                    value={selectedStudent ? selectedStudent.id : ''} 
+                    onChange={(e) => setSelectedFeeStudentId(e.target.value)} 
+                    className="select-dropdown"
+                    style={{ width: '100%', padding: '10px 14px', fontSize: '0.95rem' }}
+                  >
                     {students.length > 0 ? (
-                      students.map(student => {
-                        const paid = student.feesPaid || 0;
-                        const total = student.totalFees || 0;
-                        const balance = Math.max(0, total - paid);
-                        let statusBadge = <span className="badge badge-danger">Unpaid</span>;
-                        if (paid >= total && total > 0) {
-                          statusBadge = <span className="badge badge-success">Fully Paid</span>;
-                        } else if (paid > 0) {
-                          statusBadge = <span className="badge badge-warning">Partial</span>;
-                        }
-                        
-                        return (
-                          <tr key={student.id}>
-                            <td>
-                              <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{student.name}</div>
-                              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{student.id}</div>
-                            </td>
-                            <td>{student.className}</td>
-                            <td style={{ fontWeight: 600 }}>₹{total}</td>
-                            <td style={{ fontWeight: 600, color: 'var(--color-success)' }}>₹{paid}</td>
-                            <td style={{ fontWeight: 600, color: balance > 0 ? 'var(--color-danger)' : 'var(--text-muted)' }}>
-                              ₹{balance}
-                            </td>
-                            <td>{statusBadge}</td>
-                          </tr>
-                        );
-                      })
+                      students.map(student => (
+                        <option key={student.id} value={student.id}>
+                          {student.name} ({student.id}) — {student.className}
+                        </option>
+                      ))
                     ) : (
-                      <tr>
-                        <td colSpan="6" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>
-                          No student ledger records found.
-                        </td>
-                      </tr>
+                      <option value="">No students available</option>
                     )}
-                  </tbody>
-                </table>
+                  </select>
+                </div>
               </div>
+
+              {selectedStudent ? (
+                (() => {
+                  const paid = selectedStudent.feesPaid !== undefined ? selectedStudent.feesPaid : 0;
+                  const total = selectedStudent.totalFees !== undefined ? selectedStudent.totalFees : 0;
+                  const balance = Math.max(0, total - paid);
+                  const percentPaid = total > 0 ? Math.min(100, Math.round((paid / total) * 100)) : 0;
+                  
+                  let statusBadge = <span className="badge badge-danger" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>Unpaid</span>;
+                  if (paid >= total && total > 0) {
+                    statusBadge = <span className="badge badge-success" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>Fully Paid</span>;
+                  } else if (paid > 0) {
+                    statusBadge = <span className="badge badge-warning" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>Partial Payment</span>;
+                  }
+
+                  return (
+                    <div style={{ 
+                      background: 'rgba(255, 255, 255, 0.02)', 
+                      border: '1px solid var(--border-color)', 
+                      borderRadius: '12px', 
+                      padding: '24px', 
+                      marginTop: '16px',
+                      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)'
+                    }}>
+                      <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center', 
+                        flexWrap: 'wrap', 
+                        gap: '16px', 
+                        marginBottom: '20px', 
+                        borderBottom: '1px solid var(--border-color)', 
+                        paddingBottom: '16px' 
+                      }}>
+                        <div>
+                          <h4 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                            {selectedStudent.name}
+                          </h4>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                            <span><strong>Reg No:</strong> {selectedStudent.id}</span>
+                            <span><strong>Class:</strong> {selectedStudent.className}</span>
+                            {selectedStudent.courseEnrolled && <span><strong>Course:</strong> {selectedStudent.courseEnrolled}</span>}
+                          </div>
+                        </div>
+                        <div>
+                          {statusBadge}
+                        </div>
+                      </div>
+
+                      {/* Financial Detail Grid */}
+                      <div className="fee-summary-grid" style={{ 
+                        gap: '16px', 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                        marginBottom: '24px' 
+                      }}>
+                        <div style={{ 
+                          background: 'rgba(52, 152, 219, 0.05)', 
+                          border: '1px solid rgba(52, 152, 219, 0.15)', 
+                          borderRadius: '8px', 
+                          padding: '16px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px'
+                        }}>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Course Fees</span>
+                          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>₹{total}</span>
+                        </div>
+                        
+                        <div style={{ 
+                          background: 'rgba(46, 204, 113, 0.05)', 
+                          border: '1px solid rgba(46, 204, 113, 0.15)', 
+                          borderRadius: '8px', 
+                          padding: '16px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px'
+                        }}>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Fees Paid So Far</span>
+                          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-success)' }}>₹{paid}</span>
+                        </div>
+                        
+                        <div style={{ 
+                          background: balance > 0 ? 'rgba(231, 76, 60, 0.05)' : 'rgba(127, 140, 141, 0.05)', 
+                          border: balance > 0 ? '1px solid rgba(231, 76, 60, 0.15)' : '1px solid rgba(127, 140, 141, 0.15)', 
+                          borderRadius: '8px', 
+                          padding: '16px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px'
+                        }}>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Outstanding Dues</span>
+                          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: balance > 0 ? 'var(--color-danger)' : 'var(--text-muted)' }}>₹{balance}</span>
+                        </div>
+                      </div>
+
+                      {/* Progress Bar */}
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '8px' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>Payment Completion Progress</span>
+                          <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{percentPaid}%</span>
+                        </div>
+                        <div style={{ 
+                          width: '100%', 
+                          height: '10px', 
+                          background: 'rgba(255, 255, 255, 0.08)', 
+                          borderRadius: '5px', 
+                          overflow: 'hidden'
+                        }}>
+                          <div style={{ 
+                            width: `${percentPaid}%`, 
+                            height: '100%', 
+                            background: percentPaid === 100 ? 'var(--color-success)' : 'var(--color-primary)', 
+                            borderRadius: '5px',
+                            transition: 'width 0.5s ease-out'
+                          }} />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()
+              ) : (
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '40px 24px', 
+                  color: 'var(--text-muted)',
+                  border: '1px dashed var(--border-color)',
+                  borderRadius: '8px',
+                  background: 'rgba(255, 255, 255, 0.01)'
+                }}>
+                  No student ledger records found.
+                </div>
+              )}
             </div>
           </>
         )}
