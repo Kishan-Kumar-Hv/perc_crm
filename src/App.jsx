@@ -263,12 +263,12 @@ function App() {
               </span>
               
               <h1 className="landing-hero-title">
-                Best Personalized Coaching <br/>
-                for <span className="accent-red">IIT, NEET & CET</span> Prep
+                Build Your Academic Future at <br/>
+                <span className="accent-red">Personalized Education Research Centre(PERC)</span>
               </h1>
               
               <p className="landing-hero-desc">
-                Personalized Education Research Center (PERC) integrates academic tracking, comprehensive tests, and individual feedback to build the ideal learning foundation.
+                Personalized coaching for JEE, NEET, KCET & Board Exam
               </p>
 
               {/* Call to Actions */}
